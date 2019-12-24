@@ -7,12 +7,10 @@ const App: React.FC = () => {
   const socket = io("http://localhost:8080");
 
   socket.on("connect", () => {
-    console.log("connected");
+    socket.emit("start-game");
   });
 
-  socket.on("chat message", (data: any) => {
-    console.log(data);
-  });
+  socket.on("game-started", console.log);
 
   return (
     <div className="App">
