@@ -1,9 +1,7 @@
 import { Socket } from "socket.io";
 import * as commands from "./commands";
 import * as events from "./events";
-import { Hand } from "./state";
-
-const sockets: Map<string, Socket> = new Map();
+import { Hand, sockets } from "./state";
 
 export const startGame = (socket: Socket) => {
   const data = commands.startGame(socket.id);
