@@ -1,8 +1,14 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import io from "socket.io-client";
+import logo from "./logo.svg";
+import "./App.css";
 
 const App: React.FC = () => {
+  const socket = io("http://localhost:8080");
+  socket.on('connect', () => {
+    console.log("connected")
+  })
+
   return (
     <div className="App">
       <header className="App-header">
@@ -21,6 +27,6 @@ const App: React.FC = () => {
       </header>
     </div>
   );
-}
+};
 
 export default App;
