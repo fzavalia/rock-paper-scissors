@@ -7,9 +7,8 @@ const server = http.createServer(app);
 const wss = io(server);
 
 wss.on("connection", function(socket) {
-  socket.on("chat message", function(msg) {
-    wss.emit("chat message", msg);
-  });
+  socket.emit("chat message", "I connected")
+  wss.emit("chat message", "Someone Connected")
 });
 
 server.listen(8080, function() {

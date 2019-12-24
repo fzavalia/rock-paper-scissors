@@ -5,9 +5,14 @@ import "./App.css";
 
 const App: React.FC = () => {
   const socket = io("http://localhost:8080");
-  socket.on('connect', () => {
-    console.log("connected")
-  })
+
+  socket.on("connect", () => {
+    console.log("connected");
+  });
+
+  socket.on("chat message", (data: any) => {
+    console.log(data);
+  });
 
   return (
     <div className="App">
