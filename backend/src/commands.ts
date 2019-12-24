@@ -16,10 +16,6 @@ export const joinGame = (playerId: string, gameId: string) => {
   }
 };
 
-/**
- *
- * @returns {string | undefined} opponent id if hand could be played
- */
 export const playHand = (playerId: string, hand: Hand) => {
   const game = findGameWithPlayer(playerId);
   if (game && game.player2) {
@@ -35,10 +31,6 @@ export const playHand = (playerId: string, hand: Hand) => {
   }
 };
 
-/**
- *
- * @returns {string | undefined} opponent id of the disconnected player if available
- */
 export const disconnect = (playerId: string) => {
   const game = findGameWithPlayer(playerId);
   if (game) {
