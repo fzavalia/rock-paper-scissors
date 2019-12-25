@@ -1,54 +1,79 @@
 import uuid from "uuid/v4";
-import { Game, Hand } from "./models";
+import { Game, Hand, Lobby, Type } from "./models";
 
 export default class Commands {
-  constructor(private games: Map<string, Game>) {}
+  constructor(
+    private lobbies: Map<string, Lobby>,
+    private games: Map<string, Game>
+  ) {}
 
-  startGame = (playerId: string) => {
-    const gameId = uuid();
-    const game: Game = { id: gameId, player1: playerId };
-    this.games.set(gameId, game);
+  createLobby = (gameType: Type) => {
+    const id = uuid();
+    const lobby: Lobby = { id, gameType, playerIds: new Set<string>() };
+    this.lobbies.set(id, lobby);
+    return lobby;
+  };
+
+  joinLobby = (playerId: string, lobbyId: string) => {
+    const lobby = this.lobbies.get(lobbyId);
+    if (!lobby) {
+      throw new Error("Lobby not found");
+    }
+    if (lobby.playerIds.size >= 2) {
+      throw new Error("Lobby is full");
+    }
+    lobby.playerIds.add(playerId);
+  };
+
+  createGame = (lobbyId: string) => {
+    const lobby = this.lobbies.get(lobbyId);
+    if (!lobby) {
+      throw new Error("Lobby not found");
+    }
+    if (lobby.playerIds.size < 2) {
+      throw new Error("Missing Players");
+    }
+    const playerIds = lobby.playerIds.values();
+    const game: Game = {
+      id: lobby.id,
+      type: lobby.gameType,
+      player1Id: playerIds.next().value,
+      player2Id: playerIds.next().value,
+      rounds: [{ hands: new Map() }]
+    };
+    this.games.set(game.id, game);
     return game;
   };
 
-  joinGame = (playerId: string, gameId: string) => {
+  playHand = (gameId: string, playerId: string, hand: Hand) => {
     const game = this.games.get(gameId);
-    if (game && !game.player2 && game.player1 !== playerId) {
-      game.player2 = playerId;
-      return game;
+    if (!game) {
+      throw new Error("Game not found");
     }
-  };
-
-  playHand = (playerId: string, hand: Hand) => {
-    const game = this.findGameWithPlayer(playerId);
-    if (game && game.player2) {
-      const { player1, player1hand, player2, player2hand } = game;
-      if (player1 === playerId && !player1hand) {
-        game.player1hand = hand;
-        return { game, opponent: player2 };
-      }
-      if (player2 === playerId && !player2hand) {
-        game.player2hand = hand;
-        return { game, opponent: player1 };
-      }
+    const { player1Id, player2Id } = game;
+    if (playerId !== player1Id && playerId !== player2Id) {
+      throw new Error("Player is not in this game");
     }
+    const { rounds } = game;
+    const currentRound = rounds[rounds.length - 1];
+    const { hands } = currentRound;
+    if (hands.has(playerId)) {
+      throw new Error("Player already played hand");
+    }
+    hands.set(playerId, hand);
   };
 
   disconnect = (playerId: string) => {
-    const game = this.findGameWithPlayer(playerId);
-    if (game) {
-      const { player1, player2, id: gameId } = game;
-      this.games.delete(gameId);
-      if (player1 === playerId) return player2;
-      if (player2 === playerId) return player1;
-    }
-  };
-
-  private findGameWithPlayer = (playerId: string) => {
-    for (let game of Array.from(this.games.values())) {
-      if (game.player1 === playerId || game.player2 === playerId) {
-        return game;
+    let game: Game | undefined;
+    for (let g of Array.from(this.games.values())) {
+      if (g.player1Id === playerId || g.player2Id === playerId) {
+        game = g;
+        break;
       }
+    }
+    if (game) {
+      this.games.delete(game.id);
+      return game;
     }
   };
 }
