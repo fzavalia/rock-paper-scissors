@@ -55,8 +55,8 @@ describe("commands", () => {
       const games = new Map<string, Game>();
       games.set(gameId, { id: gameId, player1, player2 });
       const commands = new Commands(games);
-      const opponent = commands.playHand(player1, "rock");
-      expect(opponent).toBe(player2);
+      const result = commands.playHand(player1, "rock");
+      expect(result?.opponent).toBe(player2);
       expect(games.get(gameId)?.player1hand).toBe("rock");
     });
 
@@ -65,16 +65,16 @@ describe("commands", () => {
       games.set(gameId, { id: gameId, player1, player2 });
       const commands = new Commands(games);
       commands.playHand(player1, "rock");
-      const opponent = commands.playHand(player1, "rock");
-      expect(opponent).toBeUndefined();
+      const result = commands.playHand(player1, "rock");
+      expect(result).toBeUndefined();
       expect(games.get(gameId)?.player1hand).toBe("rock");
     });
 
     it("returns undefined if the player is not in a game", () => {
       const games = new Map<string, Game>();
       const commands = new Commands(games);
-      const opponent = commands.playHand(player1, "rock");
-      expect(opponent).toBeUndefined();
+      const result = commands.playHand(player1, "rock");
+      expect(result).toBeUndefined();
     });
   });
 

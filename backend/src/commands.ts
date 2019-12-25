@@ -25,11 +25,11 @@ export default class Commands {
       const { player1, player1hand, player2, player2hand } = game;
       if (player1 === playerId && !player1hand) {
         game.player1hand = hand;
-        return player2;
+        return { game, opponent: player2 };
       }
       if (player2 === playerId && !player2hand) {
         game.player2hand = hand;
-        return player1;
+        return { game, opponent: player1 };
       }
     }
   };
