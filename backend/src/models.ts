@@ -1,5 +1,3 @@
-// export type Hand = "rock" | "paper" | "scissors";
-
 export enum HandComparison {
   TIE,
   WIN,
@@ -35,15 +33,9 @@ export class Hand {
   };
 }
 
-export enum GameType {
-  Single = 1,
-  Best3 = 3,
-  Best5 = 5
-}
-
 export interface Lobby {
   id: string;
-  gameType: GameType;
+  bestOf: number;
   playerIds: Set<string>;
 }
 
@@ -53,7 +45,7 @@ export interface Round {
 
 export interface Game {
   id: string;
-  type: GameType;
+  bestOf: number;
   rounds: Round[];
   player1Id: string;
   player2Id: string;

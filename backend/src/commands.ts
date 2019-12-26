@@ -1,12 +1,12 @@
 import uuid from "uuid/v4";
-import { Game, Hand, Lobby, GameType } from "./models";
+import { Game, Hand, Lobby } from "./models";
 
 export default class Commands {
   constructor(private lobbies: Map<string, Lobby>, private games: Map<string, Game>) {}
 
-  createLobby = (gameType: GameType) => {
+  createLobby = (bestOf: number) => {
     const id = uuid();
-    const lobby: Lobby = { id, gameType, playerIds: new Set<string>() };
+    const lobby: Lobby = { id, bestOf, playerIds: new Set<string>() };
     this.lobbies.set(id, lobby);
     return lobby;
   };
@@ -37,7 +37,7 @@ export default class Commands {
     const playerIds = lobby.playerIds.values();
     const game: Game = {
       id: lobby.id,
-      type: lobby.gameType,
+      bestOf: lobby.bestOf,
       player1Id: playerIds.next().value,
       player2Id: playerIds.next().value,
       rounds: [{ hands: new Map() }]
