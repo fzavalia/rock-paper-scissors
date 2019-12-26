@@ -4,14 +4,13 @@ import http from "http";
 import * as events from "./events";
 import Handlers from "./handlers";
 import Commands from "./commands";
-import { Game } from "./models";
 
 const app = express();
 const server = http.createServer(app);
 const wss = io(server);
 
-const commands = new Commands(new Map<string, Game>());
-const handlers = new Handlers(new Map<string, Socket>(), commands);
+const commands = new Commands(new Map(), new Map());
+const handlers = new Handlers(new Map(), commands);
 
 wss.on(events.CONNECTION, handlers.connection);
 

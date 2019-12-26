@@ -1,10 +1,49 @@
-export type Hand = "rock" | "paper" | "scissors";
+// export type Hand = "rock" | "paper" | "scissors";
 
-export type Type = "single" | "best3" | "best5";
+export enum HandComparison {
+  TIE,
+  WIN,
+  LOSE
+}
+
+export enum HandType {
+  ROCK = "rock",
+  PAPER = "paper",
+  SCISSORS = "scissors"
+}
+
+export class Hand {
+  static fromString = (str: string) => {
+    if (str !== HandType.ROCK && str !== HandType.PAPER && str !== HandType.SCISSORS) {
+      throw new Error("Invalid hand");
+    }
+    return new Hand(str);
+  };
+
+  constructor(readonly value: HandType) {}
+
+  compare = (hand: Hand): HandComparison => {
+    if (this.value === hand.value) {
+      return HandComparison.TIE;
+    }
+    const beatMap = new Map([
+      [HandType.ROCK, HandType.SCISSORS],
+      [HandType.SCISSORS, HandType.PAPER],
+      [HandType.PAPER, HandType.ROCK]
+    ]);
+    return beatMap.get(this.value) === hand.value ? HandComparison.WIN : HandComparison.LOSE;
+  };
+}
+
+export enum GameType {
+  Single = 1,
+  Best3 = 3,
+  Best5 = 5
+}
 
 export interface Lobby {
   id: string;
-  gameType: Type;
+  gameType: GameType;
   playerIds: Set<string>;
 }
 
@@ -14,7 +53,7 @@ export interface Round {
 
 export interface Game {
   id: string;
-  type: Type;
+  type: GameType;
   rounds: Round[];
   player1Id: string;
   player2Id: string;

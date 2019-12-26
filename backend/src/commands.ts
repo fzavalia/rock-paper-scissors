@@ -1,13 +1,10 @@
 import uuid from "uuid/v4";
-import { Game, Hand, Lobby, Type } from "./models";
+import { Game, Hand, Lobby, GameType } from "./models";
 
 export default class Commands {
-  constructor(
-    private lobbies: Map<string, Lobby>,
-    private games: Map<string, Game>
-  ) {}
+  constructor(private lobbies: Map<string, Lobby>, private games: Map<string, Game>) {}
 
-  createLobby = (gameType: Type) => {
+  createLobby = (gameType: GameType) => {
     const id = uuid();
     const lobby: Lobby = { id, gameType, playerIds: new Set<string>() };
     this.lobbies.set(id, lobby);
@@ -22,7 +19,11 @@ export default class Commands {
     if (lobby.playerIds.size >= 2) {
       throw new Error("Lobby is full");
     }
+    if (lobby.playerIds.has(playerId)) {
+      throw new Error("Player already in lobby");
+    }
     lobby.playerIds.add(playerId);
+    return lobby;
   };
 
   createGame = (lobbyId: string) => {
@@ -61,6 +62,21 @@ export default class Commands {
       throw new Error("Player already played hand");
     }
     hands.set(playerId, hand);
+    return game;
+  };
+
+  nextRound = (gameId: string) => {
+    const game = this.games.get(gameId);
+    if (!game) {
+      throw new Error("Game not found");
+    }
+    const { rounds } = game;
+    const last = rounds[rounds.length - 1];
+    if (last.hands.size < 2) {
+      throw new Error("A player has yet to play a hand");
+    }
+    rounds.push({ hands: new Map() });
+    return game;
   };
 
   disconnect = (playerId: string) => {
