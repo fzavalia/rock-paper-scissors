@@ -35,13 +35,13 @@ export default class Commands {
       throw new Error("Missing Players");
     }
     const playerIds = lobby.playerIds.values();
-    const game: Game = {
-      id: lobby.id,
-      bestOf: lobby.bestOf,
-      player1Id: playerIds.next().value,
-      player2Id: playerIds.next().value,
-      rounds: [{ hands: new Map() }]
-    };
+    const game: Game = new Game(
+      lobby.id,
+      lobby.bestOf,
+      [{ hands: new Map() }],
+      playerIds.next().value,
+      playerIds.next().value
+    );
     this.games.set(game.id, game);
     return game;
   };
