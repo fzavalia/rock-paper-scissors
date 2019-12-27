@@ -6,19 +6,11 @@ export default class Round {
   constructor(private player1Id: string, private player2Id: string) {}
 
   playHand = (playerId: string, hand: Hand) => {
-    this.validate(playerId);
+    this.validatePlayerId(playerId);
     if (this.hands.has(playerId)) {
       throw new Error("Player already player");
     }
     this.hands.set(playerId, hand);
-  };
-
-  getHand = (playerId: string) => {
-    const hand = this.hands.get(playerId);
-    if (!hand) {
-      throw new Error("Player hasn't played yet");
-    }
-    return hand;
   };
 
   getWinner = () => {
@@ -33,21 +25,25 @@ export default class Round {
     }
   };
 
-  getPlayerResult = (playerId: string) => {
-    this.validate(playerId);
+  isOver = () => this.hands.has(this.player1Id) && this.hands.has(this.player2Id);
+
+  private getPlayerResult = (playerId: string) => {
+    this.validatePlayerId(playerId);
+
     const player1Hand = this.hands.get(this.player1Id);
     const player2Hand = this.hands.get(this.player2Id);
+
     if (!player1Hand || !player2Hand) {
       throw new Error("A player hasn't played yet");
     }
+
     const playerHand = playerId === this.player1Id ? player1Hand : player2Hand;
     const opponentHand = playerHand === player1Hand ? player2Hand : player1Hand;
-    return playerHand.compare(opponentHand);
+
+    return playerHand.testAgainst(opponentHand);
   };
 
-  isOver = () => this.hands.has(this.player1Id) && this.hands.has(this.player2Id);
-
-  private validate = (playerId: string) => {
+  private validatePlayerId = (playerId: string) => {
     if (![this.player1Id, this.player2Id].includes(playerId)) {
       throw new Error("Player does not belong to round");
     }

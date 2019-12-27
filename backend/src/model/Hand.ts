@@ -20,7 +20,7 @@ export default class Hand {
 
   constructor(readonly value: HandType) {}
 
-  compare = (hand: Hand): HandComparison => {
+  testAgainst = (hand: Hand): HandComparison => {
     if (this.value === hand.value) {
       return HandComparison.TIE;
     }

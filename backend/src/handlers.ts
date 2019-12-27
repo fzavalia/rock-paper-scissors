@@ -43,9 +43,12 @@ export default class Handlers {
     this.emitToGamePlayers(game, events.PLAYED_HAND, { game, playerId: socket.id });
     if (game.isRoundOver()) {
       this.emitToGamePlayers(game, events.ROUND_FINISHED, { game, winner: game.getRoundWinner() });
-    }
-    if (game.isOver()) {
-      this.emitToGamePlayers(game, events.GAME_FINISHED, { game, winner: game.getWinner() });
+      if (!game.isOver()) {
+        game.startNextRound();
+      } else {
+        this.emitToGamePlayers(game, events.GAME_FINISHED, { game, winner: game.getWinner() });
+        this.games.delete(game.id);
+      }
     }
   };
 
