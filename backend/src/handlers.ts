@@ -25,7 +25,7 @@ export default class Handlers {
     this.sockets.delete(socket.id);
     const game = this.commands.disconnect(socket.id);
     if (game) {
-      const { player1Id, player2Id } = game;
+      const [player1Id, player2Id] = game.getPlayerIds();
       const playerId = player1Id === socket.id ? player2Id : player1Id;
       this.sockets.get(playerId)?.emit(events.OPPONENT_DISCONNECTED, game);
     }
@@ -33,16 +33,15 @@ export default class Handlers {
 
   playHand = (socket: Socket, gameId: string, hand: string) => {
     const game = this.commands.playHand(gameId, socket.id, Hand.fromString(hand));
-    const { player1Id, player2Id } = game;
     this.emitForPlayers(game, events.PLAYED_HAND, socket.id);
-    if (game.bothPlayersPlayedLastHand()) {
-      const winner = game.getLastRoundWinner();
-      this.emitForPlayers(game, events.ROUND_FINISHED, { winner, game });
-      const gameWins = game.getWins();
-      if (gameWins.total < game.bestOf) {
-        this.commands.nextRound(gameId);
+    if (game.isRoundOver()) {
+      const roundWinner = game.getRoundWinner();
+      this.emitForPlayers(game, events.ROUND_FINISHED, { winner: roundWinner, game });
+      if (game.isOver()) {
+        const gameWinner = game.getWinner();
+        this.emitForPlayers(game, events.GAME_FINISHED, gameWinner);
       } else {
-        this.emitForPlayers(game, events.GAME_FINISHED, gameWins.player1 > gameWins.player2 ? player1Id : player2Id);
+        game.startNextRound();
       }
     }
   };
@@ -56,8 +55,6 @@ export default class Handlers {
     socket.on(events.DISCONNECT, () => this.disconnect(socket));
   };
 
-  private emitForPlayers = (game: Game, event: string, data?: any) => {
-    const socketIds = [game.player1Id, game.player2Id];
-    socketIds.forEach(socketId => this.sockets.get(socketId)?.emit(event, data));
-  };
+  private emitForPlayers = (game: Game, event: string, data?: any) =>
+    game.getPlayerIds().forEach(socketId => this.sockets.get(socketId)?.emit(event, data));
 }

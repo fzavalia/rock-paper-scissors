@@ -39,65 +39,102 @@ export interface Lobby {
   playerIds: Set<string>;
 }
 
-export interface Round {
-  hands: Map<string, Hand>;
+export class Round {
+  private readonly hands: Map<string, Hand> = new Map();
+
+  constructor(private player1Id: string, private player2Id: string) {}
+
+  playHand = (playerId: string, hand: Hand) => {
+    this.validate(playerId);
+    if (this.hands.has(playerId)) {
+      throw new Error("Player already player");
+    }
+    this.hands.set(playerId, hand);
+  };
+
+  getHand = (playerId: string) => {
+    const hand = this.hands.get(playerId);
+    if (!hand) {
+      throw new Error("Player hasn't played yet");
+    }
+    return hand;
+  };
+
+  getWinner = () => {
+    const comparison = this.getPlayerResult(this.player1Id);
+    switch (comparison) {
+      case HandComparison.TIE:
+        return undefined;
+      case HandComparison.WIN:
+        return this.player1Id;
+      default:
+        return this.player2Id;
+    }
+  };
+
+  getPlayerResult = (playerId: string) => {
+    this.validate(playerId);
+    const player1Hand = this.hands.get(this.player1Id);
+    const player2Hand = this.hands.get(this.player2Id);
+    if (!player1Hand || !player2Hand) {
+      throw new Error("A player hasn't played yet");
+    }
+    const playerHand = playerId === this.player1Id ? player1Hand : player2Hand;
+    const opponnentHand = playerHand === player1Hand ? player2Hand : player1Hand;
+    return playerHand.compare(opponnentHand);
+  };
+
+  isOver = () => this.hands.has(this.player1Id) && this.hands.has(this.player2Id);
+
+  private validate = (playerId: string) => {
+    if (![this.player1Id, this.player2Id].includes(playerId)) {
+      throw new Error("Player does not belong to round");
+    }
+  };
 }
 
 export class Game {
+  private readonly rounds: Round[];
+
   constructor(
-    readonly id: string,
-    readonly bestOf: number,
-    readonly rounds: Round[],
-    readonly player1Id: string,
-    readonly player2Id: string
-  ) {}
-
-  getWins = () => {
-    const wins = this.getPlayer1Results().reduce(
-      (acc, next) => {
-        if (next === HandComparison.WIN) {
-          acc[0]++;
-        } else if (next === HandComparison.LOSE) {
-          acc[1]++;
-        }
-        return acc;
-      },
-      [0, 0]
-    );
-    return {
-      total: wins[0] + wins[1],
-      player1: wins[0],
-      player2: wins[1]
-    };
-  };
-
-  getPlayer1Results = () =>
-    this.rounds
-      .map(round => round.hands)
-      .map(hands => {
-        const player1Hand = hands.get(this.player1Id);
-        const player2Hand = hands.get(this.player2Id);
-        if (player1Hand && player2Hand) {
-          return player1Hand.compare(player2Hand);
-        }
-      });
-
-  bothPlayersPlayedLastHand = () => {
-    const hands = this.rounds[this.rounds.length - 1].hands;
-    return hands.has(this.player1Id) && hands.has(this.player2Id);
-  };
-
-  getLastRoundWinner = () => {
-    const hands = this.rounds[this.rounds.length - 1].hands;
-    const player1Hand = hands.get(this.player1Id);
-    const player2Hand = hands.get(this.player2Id);
-    if (player1Hand && player2Hand) {
-      const comparison = player1Hand.compare(player2Hand);
-      return comparison === HandComparison.WIN
-        ? this.player1Id
-        : comparison === HandComparison.LOSE
-        ? this.player2Id
-        : undefined;
-    }
+    private readonly id: string,
+    private readonly bestOf: number,
+    private readonly player1Id: string,
+    private readonly player2Id: string
+  ) {
+    this.rounds = [new Round(player1Id, player2Id)];
   }
+
+  getPlayerIds = () => [this.player1Id, this.player2Id];
+
+  isRoundOver = () => this.getLastRound().isOver();
+
+  getRoundWinner = () => this.getLastRound().getWinner();
+
+  isOver = () => this.getNonTiedRoundsCount() >= this.bestOf;
+
+  getWinner = () => {
+    const [player1Wins, player2Wins] = this.rounds
+      .map(round => round.getWinner())
+      .reduce(
+        (acc, winner) => {
+          if (winner === this.player1Id) acc[0]++;
+          else acc[1]++;
+          return acc;
+        },
+        [0, 0]
+      );
+    return player1Wins > player2Wins ? this.player1Id : this.player2Id;
+  };
+
+  startNextRound = () => {
+    if (!this.getLastRound().isOver()) {
+      throw new Error("Round is not over");
+    }
+    this.rounds.push(new Round(this.player1Id, this.player2Id));
+  };
+
+  private getNonTiedRoundsCount = () => this.rounds.filter(round => round.getWinner() !== undefined).length;
+
+  private getLastRound = () => this.rounds[this.rounds.length - 1];
 }
