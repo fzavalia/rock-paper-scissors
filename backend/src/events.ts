@@ -5,7 +5,6 @@ export const JOIN_LOBBY = "create-lobby";
 export const JOINED_LOBBY = "joined-lobby";
 export const CREATE_GAME = "create-game";
 export const CREATED_GAME = "created-game";
-export const DISCONNECTED = "disconnected";
 export const ROUND_FINISHED = "round-finished";
 export const GAME_FINISHED = "game-finished";
 export const PLAY_HAND = "play-hand";
