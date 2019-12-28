@@ -39,8 +39,11 @@ export default class Connection {
   createGame = (lobbyId: string) => {
     const lobby = this.getLobby(lobbyId);
     const game = lobby.toGame();
+    this.lobbies.delete(lobby.id);
     this.games.set(game.id, game);
-    this.emitToPlayers(game, events.CREATED_GAME, { game });
+    this.emitToPlayers(game, events.CREATED_GAME, {
+      game: { id: game.id, bestOf: game.bestOf, playerIds: game.getPlayerIds() }
+    });
   };
 
   disconnect = () => {
