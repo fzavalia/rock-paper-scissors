@@ -69,11 +69,11 @@ export default class Connection {
 
   private on = (event: string, f: (x: any) => void) => {
     this.socket.on(event, data => {
-      console.log(event, data);
+      console.log(Date.now(), event, data);
       try {
         f(data);
       } catch (e) {
-        console.log(`Failed with ${e}`);
+        console.log(Date.now(), `Failed with ${e}`);
         this.socket.emit(events.RUNTIME_ERROR, { error: e });
       }
     });
