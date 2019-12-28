@@ -4,6 +4,7 @@ import Game from "./model/Game";
 import Lobby from "./model/Lobby";
 import uuid from "uuid/v4";
 import Hand from "./model/Hand";
+import HasPlayers from "./model/interfaces/HasPlayers";
 
 export default class Connection {
   constructor(
@@ -28,14 +29,14 @@ export default class Connection {
   joinLobby = (lobbyId: string) => {
     const lobby = this.getLobby(lobbyId);
     lobby.join(this.socket.id);
-    this.emitToLobbyPlayers(lobby, events.JOINED_LOBBY, { lobby, playerId: this.socket.id });
+    this.emitToPlayers(lobby, events.JOINED_LOBBY, { lobby, playerId: this.socket.id });
   };
 
   createGame = (lobbyId: string) => {
     const lobby = this.getLobby(lobbyId);
     const game = lobby.toGame();
     this.games.set(game.id, game);
-    this.emitToGamePlayers(game, events.CREATED_GAME, { game });
+    this.emitToPlayers(game, events.CREATED_GAME, { game });
   };
 
   disconnect = () => {
@@ -47,13 +48,13 @@ export default class Connection {
   playHand = (gameId: string, hand: string) => {
     const game = this.getGame(gameId);
     game.playHand(this.socket.id, Hand.fromString(hand));
-    this.emitToGamePlayers(game, events.PLAYED_HAND, { game, playerId: this.socket.id });
+    this.emitToPlayers(game, events.PLAYED_HAND, { game, playerId: this.socket.id });
     if (game.isRoundOver()) {
-      this.emitToGamePlayers(game, events.ROUND_FINISHED, { game, winner: game.getRoundWinner() });
+      this.emitToPlayers(game, events.ROUND_FINISHED, { game, winner: game.getRoundWinner() });
       if (!game.isOver()) {
         game.startNextRound();
       } else {
-        this.emitToGamePlayers(game, events.GAME_FINISHED, { game, winner: game.getWinner() });
+        this.emitToPlayers(game, events.GAME_FINISHED, { game, winner: game.getWinner() });
         this.games.delete(game.id);
       }
     }
@@ -76,19 +77,13 @@ export default class Connection {
   };
 
   private handleLobbyOnDisconnect = () => {
-    let lobby: Lobby | undefined;
-    for (let l of Array.from(this.lobbies.values())) {
-      if (l.hasPlayer(this.socket.id)) {
-        lobby = l;
-        break;
-      }
-    }
+    let lobby = this.getWhereSocketIsPlayer(Array.from(this.lobbies.values()));
     if (lobby) {
       lobby.remove(this.socket.id);
       if (lobby.isEmpty()) {
         this.lobbies.delete(lobby.id);
       } else {
-        this.emitToLobbyPlayers(
+        this.emitToPlayers(
           lobby,
           events.JOINED_LOBBY,
           { lobby, playerId: this.socket.id },
@@ -99,16 +94,10 @@ export default class Connection {
   };
 
   private handleGameOnDisconnect = () => {
-    let game: Game | undefined;
-    for (let g of Array.from(this.games.values())) {
-      if (g.hasPlayer(this.socket.id)) {
-        game = g;
-        break;
-      }
-    }
+    let game = this.getWhereSocketIsPlayer(Array.from(this.games.values()));
     if (game) {
       this.games.delete(game.id);
-      this.emitToGamePlayers(
+      this.emitToPlayers(
         game,
         events.OPPONENT_DISCONNECTED,
         { game, playerId: this.socket.id },
@@ -117,20 +106,25 @@ export default class Connection {
     }
   };
 
-  private emitToGamePlayers = (
-    game: Game,
+  private getWhereSocketIsPlayer = <T extends HasPlayers>(xs: T[]) => {
+    let x: T | undefined;
+    for (let i of xs) {
+      if (i.hasPlayer(this.socket.id)) {
+        x = i;
+        break;
+      }
+    }
+    return x;
+  };
+
+  private emitToPlayers = (
+    x: HasPlayers,
     event: string,
     payload: any,
     filter: (playerId: string) => boolean = () => true
-  ) => this.emit(game.getPlayerIds(), event, payload, filter);
-
-  private emitToLobbyPlayers = (
-    lobby: Lobby,
-    event: string,
-    payload: any,
-    filter: (playerId: string) => boolean = () => true
-  ) => this.emit(lobby.getPlayerIds(), event, payload, filter);
-
-  private emit = (ids: string[], event: string, payload: any, filter: (id: string) => boolean = () => true) =>
-    ids.filter(filter).forEach(playerId => this.sockets.get(playerId)?.emit(event, payload));
+  ) => {
+    x.getPlayerIds()
+      .filter(filter)
+      .forEach(playerId => this.sockets.get(playerId)?.emit(event, payload));
+  };
 }

@@ -1,9 +1,15 @@
 import Game from "./Game";
+import HasPlayers from "./interfaces/HasPlayers";
 
-export default class Lobby {
+export default class Lobby implements HasPlayers {
+
   private readonly playerIds = new Set<string>();
 
   constructor(readonly id: string, readonly bestOf: number) {}
+
+  getPlayerIds = () => Array.from(this.playerIds);
+
+  hasPlayer = (playerId: string) => this.playerIds.has(playerId);
 
   join = (playerId: string) => {
     if (this.playerIds.has(playerId)) {
@@ -15,8 +21,6 @@ export default class Lobby {
     this.playerIds.add(playerId);
   };
 
-  getPlayerIds = () => Array.from(this.playerIds);
-
   toGame = () => {
     if (this.playerIds.size < 2) {
       throw new Error("Missing players");
@@ -24,8 +28,6 @@ export default class Lobby {
     const playerIds = this.playerIds.values();
     return new Game(this.id, this.bestOf, playerIds.next().value, playerIds.next().value);
   };
-
-  hasPlayer = (playerId: string) => this.playerIds.has(playerId);
 
   remove = (playerId: string) => this.playerIds.delete(playerId);
 
