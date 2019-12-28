@@ -21,13 +21,25 @@ export default class Connection {
     this.on(events.DISCONNECT, () => this.disconnect());
   }
 
-  createLobby = (bestOf: number) => {
+  private on = (event: string, f: (x: any) => void) => {
+    this.socket.on(event, data => {
+      console.log(Date.now(), event, data);
+      try {
+        f(data);
+      } catch (e) {
+        console.log(Date.now(), `Failed with ${e}`);
+        this.socket.emit(events.RUNTIME_ERROR, { error: e });
+      }
+    });
+  };
+
+  private createLobby = (bestOf: number) => {
     const lobby: Lobby = new Lobby(uuid(), bestOf);
     this.lobbies.set(lobby.id, lobby);
     this.socket.emit(events.CREATED_LOBBY, { lobby: { id: lobby.id } });
   };
 
-  joinLobby = (lobbyId: string) => {
+  private joinLobby = (lobbyId: string) => {
     const lobby = this.getLobby(lobbyId);
     lobby.join(this.socket.id);
     this.emitToPlayers(lobby, events.JOINED_LOBBY, {
@@ -36,7 +48,7 @@ export default class Connection {
     });
   };
 
-  createGame = (lobbyId: string) => {
+  private createGame = (lobbyId: string) => {
     const lobby = this.getLobby(lobbyId);
     const game = lobby.toGame();
     this.lobbies.delete(lobby.id);
@@ -46,13 +58,7 @@ export default class Connection {
     });
   };
 
-  disconnect = () => {
-    this.sockets.delete(this.socket.id);
-    this.handleLobbyOnDisconnect();
-    this.handleGameOnDisconnect();
-  };
-
-  playHand = (gameId: string, hand: string) => {
+  private playHand = (gameId: string, hand: string) => {
     const game = this.getGame(gameId);
     game.playHand(this.socket.id, Hand.fromString(hand));
     this.emitToPlayers(game, events.PLAYED_HAND, { game, playerId: this.socket.id });
@@ -67,16 +73,10 @@ export default class Connection {
     }
   };
 
-  private on = (event: string, f: (x: any) => void) => {
-    this.socket.on(event, data => {
-      console.log(Date.now(), event, data);
-      try {
-        f(data);
-      } catch (e) {
-        console.log(Date.now(), `Failed with ${e}`);
-        this.socket.emit(events.RUNTIME_ERROR, { error: e });
-      }
-    });
+  private disconnect = () => {
+    this.sockets.delete(this.socket.id);
+    this.handleLobbyOnDisconnect();
+    this.handleGameOnDisconnect();
   };
 
   private getLobby = (lobbyId: string): Lobby => {
