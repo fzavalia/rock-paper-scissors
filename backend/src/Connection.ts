@@ -107,14 +107,14 @@ export default class Connection {
   };
 
   private getWhereSocketIsPlayer = <T extends HasPlayers>(xs: T[]) => {
-    let x: T | undefined;
-    for (let i of xs) {
-      if (i.hasPlayer(this.socket.id)) {
-        x = i;
+    let hp: T | undefined;
+    for (let x of xs) {
+      if (x.hasPlayer(this.socket.id)) {
+        hp = x;
         break;
       }
     }
-    return x;
+    return hp;
   };
 
   private emitToPlayers = (
