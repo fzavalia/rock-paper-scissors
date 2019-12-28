@@ -1,7 +1,7 @@
 export const CONNECTION = "connection";
 export const CREATE_LOBBY = "create-lobby";
-export const CREATED_LOBBY = "created_lobby";
-export const JOIN_LOBBY = "create-lobby";
+export const CREATED_LOBBY = "created-lobby";
+export const JOIN_LOBBY = "join-lobby";
 export const JOINED_LOBBY = "joined-lobby";
 export const CREATE_GAME = "create-game";
 export const CREATED_GAME = "created-game";
@@ -11,3 +11,4 @@ export const PLAY_HAND = "play-hand";
 export const PLAYED_HAND = "played-hand";
 export const DISCONNECT = "disconnect";
 export const OPPONENT_DISCONNECTED = "opponent-disconnected";
+export const ERROR = "error";
