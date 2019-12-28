@@ -24,13 +24,16 @@ export default class Connection {
   createLobby = (bestOf: number) => {
     const lobby: Lobby = new Lobby(uuid(), bestOf);
     this.lobbies.set(lobby.id, lobby);
-    this.socket.emit(events.CREATED_LOBBY, lobby);
+    this.socket.emit(events.CREATED_LOBBY, { lobby: { id: lobby.id } });
   };
 
   joinLobby = (lobbyId: string) => {
     const lobby = this.getLobby(lobbyId);
     lobby.join(this.socket.id);
-    this.emitToPlayers(lobby, events.JOINED_LOBBY, { lobby, playerId: this.socket.id });
+    this.emitToPlayers(lobby, events.JOINED_LOBBY, {
+      lobby: { id: lobbyId, playerIds: lobby.getPlayerIds(), bestOf: lobby.bestOf },
+      playerId: this.socket.id
+    });
   };
 
   createGame = (lobbyId: string) => {
