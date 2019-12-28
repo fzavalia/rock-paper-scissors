@@ -11,4 +11,4 @@ export const PLAY_HAND = "play-hand";
 export const PLAYED_HAND = "played-hand";
 export const DISCONNECT = "disconnect";
 export const OPPONENT_DISCONNECTED = "opponent-disconnected";
-export const ERROR = "error";
+export const RUNTIME_ERROR = "runtime-error";
