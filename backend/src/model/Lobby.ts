@@ -2,7 +2,6 @@ import Game from "./Game";
 import HasPlayers from "./interfaces/HasPlayers";
 
 export default class Lobby implements HasPlayers {
-
   private readonly playerIds = new Set<string>();
 
   constructor(readonly id: string, readonly bestOf: number) {}
