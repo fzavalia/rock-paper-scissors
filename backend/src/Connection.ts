@@ -13,6 +13,7 @@ export default class Connection {
     private readonly games: Map<string, Game>,
     private readonly lobbies: Map<string, Lobby>
   ) {
+    sockets.set(socket.id, socket);
     socket.on(events.CREATE_LOBBY, bestOf => this.createLobby(bestOf));
     socket.on(events.JOIN_LOBBY, lobbyId => this.joinLobby(lobbyId));
     socket.on(events.CREATE_GAME, lobbyId => this.createGame(lobbyId));
