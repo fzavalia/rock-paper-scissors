@@ -101,14 +101,8 @@ export default class Connection {
       lobby.remove(this.socket.id);
       if (lobby.isEmpty()) {
         this.lobbies.delete(lobby.id);
-      } else {
-        this.emitToPlayers(
-          lobby,
-          events.JOINED_LOBBY,
-          { lobby, playerId: this.socket.id },
-          playerId => playerId !== this.socket.id
-        );
       }
+      this.emitDisconnection(lobby);
     }
   };
 
@@ -116,12 +110,7 @@ export default class Connection {
     let game = this.getWhereSocketIsPlayer(Array.from(this.games.values()));
     if (game) {
       this.games.delete(game.id);
-      this.emitToPlayers(
-        game,
-        events.OPPONENT_DISCONNECTED,
-        { game, playerId: this.socket.id },
-        playerId => playerId !== this.socket.id
-      );
+      this.emitDisconnection(game);
     }
   };
 
@@ -146,4 +135,12 @@ export default class Connection {
       .filter(filter)
       .forEach(playerId => this.sockets.get(playerId)?.emit(event, payload));
   };
+
+  private emitDisconnection = (x: HasPlayers) =>
+    this.emitToPlayers(
+      x,
+      events.OPPONENT_DISCONNECTED,
+      { playerId: this.socket.id },
+      playerId => playerId !== this.socket.id
+    );
 }
