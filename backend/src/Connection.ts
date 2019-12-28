@@ -14,11 +14,11 @@ export default class Connection {
     private readonly lobbies: Map<string, Lobby>
   ) {
     sockets.set(socket.id, socket);
-    socket.on(events.CREATE_LOBBY, bestOf => this.createLobby(bestOf));
-    socket.on(events.JOIN_LOBBY, lobbyId => this.joinLobby(lobbyId));
-    socket.on(events.CREATE_GAME, lobbyId => this.createGame(lobbyId));
-    socket.on(events.PLAY_HAND, data => this.playHand(data.gameId, data.hand));
-    socket.on(events.DISCONNECT, () => this.disconnect());
+    this.on(events.CREATE_LOBBY, bestOf => this.createLobby(bestOf));
+    this.on(events.JOIN_LOBBY, lobbyId => this.joinLobby(lobbyId));
+    this.on(events.CREATE_GAME, lobbyId => this.createGame(lobbyId));
+    this.on(events.PLAY_HAND, data => this.playHand(data.gameId, data.hand));
+    this.on(events.DISCONNECT, () => this.disconnect());
   }
 
   createLobby = (bestOf: number) => {
@@ -65,6 +65,18 @@ export default class Connection {
         this.games.delete(game.id);
       }
     }
+  };
+
+  private on = (event: string, f: (x: any) => void) => {
+    this.socket.on(event, data => {
+      console.log(event, data);
+      try {
+        f(data);
+      } catch (e) {
+        console.log(`Failed with ${e}`);
+        this.socket.emit(events.RUNTIME_ERROR, { error: e });
+      }
+    });
   };
 
   private getLobby = (lobbyId: string): Lobby => {
