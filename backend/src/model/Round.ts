@@ -14,7 +14,7 @@ export default class Round {
   };
 
   getWinner = () => {
-    switch (this.getPlayerResult(this.player1Id)) {
+    switch (this.getPlayer1Result()) {
       case HandComparison.TIE:
         return undefined;
       case HandComparison.WIN:
@@ -26,20 +26,13 @@ export default class Round {
 
   isOver = () => this.hands.has(this.player1Id) && this.hands.has(this.player2Id);
 
-  private getPlayerResult = (playerId: string) => {
-    this.validatePlayerId(playerId);
-
+  private getPlayer1Result = () => {
     const player1Hand = this.hands.get(this.player1Id);
     const player2Hand = this.hands.get(this.player2Id);
-
     if (!player1Hand || !player2Hand) {
       throw new Error("A player hasn't played yet");
     }
-
-    const playerHand = playerId === this.player1Id ? player1Hand : player2Hand;
-    const opponentHand = playerHand === player1Hand ? player2Hand : player1Hand;
-
-    return playerHand.testAgainst(opponentHand);
+    return player1Hand.testAgainst(player2Hand);
   };
 
   private validatePlayerId = (playerId: string) => {
