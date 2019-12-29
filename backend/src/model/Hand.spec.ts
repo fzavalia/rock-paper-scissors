@@ -21,14 +21,9 @@ describe("Hand", () => {
   });
 
   describe("fromString", () => {
-    it("succeeds", () => {
-      expectFromString("rock", HandType.ROCK);
-      expectFromString("scissors", HandType.SCISSORS);
-      expectFromString("paper", HandType.PAPER);
-    });
-
-    it("fails on wrong input", () => {
-      expect(() => Hand.fromString("invalid")).toThrow();
-    });
+    it("fails on wrong input", () => expect(() => Hand.fromString("invalid")).toThrow());
+    it("from rock", () => expectFromString("rock", HandType.ROCK));
+    it("from paper", () => expectFromString("paper", HandType.PAPER));
+    it("from scissors", () => expectFromString("scissors", HandType.SCISSORS));
   });
 });
