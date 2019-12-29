@@ -22,9 +22,18 @@ export default class Game implements HasPlayers {
 
   getRoundWinner = () => this.getCurrentRound().getWinner();
 
-  isOver = () => this.getNonTiedRoundsCount() >= this.bestOf;
+  isOver = () => {
+    try {
+      return this.getNonTiedRoundsCount() >= this.bestOf;
+    } catch (e) {
+      return false;
+    }
+  };
 
   getWinner = () => {
+    if (this.getNonTiedRoundsCount() < this.bestOf) {
+      throw new Error("Game not finished");
+    }
     const [player1Wins, player2Wins] = this.rounds
       .map(round => round.getWinner())
       .reduce(
@@ -35,11 +44,13 @@ export default class Game implements HasPlayers {
         },
         [0, 0]
       );
-
     return player1Wins > player2Wins ? this.player1Id : this.player2Id;
   };
 
   startNextRound = () => {
+    if (this.getNonTiedRoundsCount() >= this.bestOf) {
+      throw new Error("Best of reached");
+    }
     if (!this.isRoundOver()) {
       throw new Error("Round is not over");
     }
