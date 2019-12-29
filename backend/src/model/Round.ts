@@ -14,8 +14,7 @@ export default class Round {
   };
 
   getWinner = () => {
-    const comparison = this.getPlayerResult(this.player1Id);
-    switch (comparison) {
+    switch (this.getPlayerResult(this.player1Id)) {
       case HandComparison.TIE:
         return undefined;
       case HandComparison.WIN:
