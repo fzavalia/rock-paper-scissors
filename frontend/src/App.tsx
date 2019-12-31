@@ -1,32 +1,82 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import io from "socket.io-client";
 
 const socket = io("http://localhost:8080");
 
 const App = () => {
-  const [lobbyId, setLobbyId] = useState<any>("");
-  useEffect(() => {
-    socket.on("created-lobby", (data: any) => {
-      console.log(data);
-      setLobbyId(data.lobby.id);
-    });
-    socket.on("joined-lobby", (data: any) => {
-      console.log(data);
-    });
-    socket.on("created-game", (data: any) => {
-      console.log(data);
-    });
-  }, []);
   return (
-    <div style={{ display: "flex", flexDirection: "column", width: 500 }}>
-      <div style={{ display: "flex" }}>
-        <span style={{ marginRight: "1rem" }}>lobbyId</span>
-        <input style={{ flex: 1 }} value={lobbyId} onChange={e => setLobbyId(e.target.value)} />
+    <Router>
+      <Switch>
+        <Route
+          path="/:id"
+          render={props => <Lobby id={props.match.params.id} onError={() => props.history.push("/")} />}
+        />
+        <Route render={props => <CreateLobby onCreate={data => props.history.push(`/${data.lobby.id}`)} />} />
+      </Switch>
+    </Router>
+  );
+};
+
+const Lobby = (props: { id: string; onError: () => void }) => {
+  const [lobby, setLobby] = useState<any>(undefined);
+
+  useEffect(() => {
+    const onJoinedLobby = (data: any) => setLobby(data.lobby);
+    const onCreatedGame = console.log;
+    const onRuntimeError = props.onError;
+    const onOpponentDisconnected = (data: any) => {
+      setLobby({ ...lobby, playerIds: lobby.playerIds.filter((playerId: string) => playerId !== data.playerId) });
+    };
+
+    socket.emit("join-lobby", props.id);
+    socket.on("joined-lobby", onJoinedLobby);
+    socket.on("created-game", onJoinedLobby);
+    socket.on("runtime-error", onRuntimeError);
+    socket.on("opponent-disconnected", onOpponentDisconnected);
+
+    return () => {
+      socket.off("joined-lobby", onJoinedLobby);
+      socket.off("created-game", onCreatedGame);
+      socket.off("runtime-error", onRuntimeError);
+      socket.off("opponent-disconnected", onOpponentDisconnected);
+    };
+  }, []);
+
+  if (!lobby) {
+    return null;
+  }
+
+  return (
+    <>
+      {lobby.playerIds.map((playerId: any) => (
+        <div key={playerId}>{playerId}</div>
+      ))}
+      <button disabled={lobby.playerIds.length < 2} onClick={() => socket.emit("create-game", lobby.id)}>
+        Create Game
+      </button>
+    </>
+  );
+};
+
+const CreateLobby = (props: { onCreate: (lobby: any) => void }) => {
+  const [bestOf, setBestOf] = useState(1);
+
+  useEffect(() => {
+    socket.on("created-lobby", props.onCreate);
+    return () => {
+      socket.off("created-lobby", props.onCreate);
+    };
+  });
+
+  return (
+    <>
+      <div>
+        <label>Best Of </label>
+        <input type="number" value={bestOf} onChange={e => setBestOf(parseInt(e.target.value))} />
       </div>
-      <button onClick={() => socket.emit("create-lobby", 3)}>CREATE LOBBY</button>
-      <button onClick={() => socket.emit("join-lobby", lobbyId)}>JOIN LOBBY</button>
-      <button onClick={() => socket.emit("create-game", lobbyId)}>CREATE GAME</button>
-    </div>
+      <button onClick={() => socket.emit("create-lobby", bestOf)}>Create Lobby</button>
+    </>
   );
 };
 
