@@ -28,7 +28,7 @@ export default class Connection {
         f(data);
       } catch (e) {
         console.log(Date.now(), `Failed with ${e}`);
-        this.socket.emit(events.RUNTIME_ERROR, { error: e });
+        this.socket.emit(events.RUNTIME_ERROR, { error: e.toString() });
       }
     });
   };
