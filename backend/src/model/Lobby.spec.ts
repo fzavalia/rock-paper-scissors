@@ -20,10 +20,9 @@ describe("Lobby", () => {
   });
 
   describe("join", () => {
-    it("fails when the same player tries to join more than once", () => {
+    it("a player that already joined a lobby can rejoin", () => {
       const lobby = new Lobby("id", 1);
       lobby.join(player1Id);
-      expect(() => lobby.join(player1Id)).toThrow();
     });
 
     it("fails when the lobby is full", () => {

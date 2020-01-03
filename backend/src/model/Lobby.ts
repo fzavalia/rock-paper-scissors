@@ -12,7 +12,7 @@ export default class Lobby implements HasPlayers {
 
   join = (playerId: string) => {
     if (this.playerIds.has(playerId)) {
-      throw new Error("Player already in Lobby");
+      return;
     }
     if (this.playerIds.size >= 2) {
       throw new Error("Lobby is full");
