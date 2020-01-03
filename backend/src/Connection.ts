@@ -17,6 +17,7 @@ export default class Connection {
     this.on(events.CREATE_LOBBY, bestOf => this.createLobby(bestOf));
     this.on(events.JOIN_LOBBY, lobbyId => this.joinLobby(lobbyId));
     this.on(events.CREATE_GAME, lobbyId => this.createGame(lobbyId));
+    this.on(events.FIND_GAME, gameId => this.findGame(gameId));
     this.on(events.PLAY_HAND, data => this.playHand(data.gameId, data.hand));
     this.on(events.DISCONNECT, () => this.disconnect());
   }
@@ -54,6 +55,16 @@ export default class Connection {
     this.lobbies.delete(lobby.id);
     this.games.set(game.id, game);
     this.emitToPlayers(game, events.CREATED_GAME, {
+      game: { id: game.id, bestOf: game.bestOf, playerIds: game.getPlayerIds() }
+    });
+  };
+
+  private findGame = (gameId: string) => {
+    const game = this.getGame(gameId);
+    if (!game.hasPlayer(this.socket.id)) {
+      throw new Error("Player does not belong to game");
+    }
+    this.socket.emit(events.FOUND_GAME, {
       game: { id: game.id, bestOf: game.bestOf, playerIds: game.getPlayerIds() }
     });
   };
