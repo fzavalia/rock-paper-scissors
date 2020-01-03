@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import { Button, TextField } from "@material-ui/core";
+import { Button, TextField, Typography } from "@material-ui/core";
 import { socket } from "../App";
 
 const CreateLobby = () => {
@@ -18,6 +18,9 @@ const CreateLobby = () => {
 
   return (
     <div style={{ padding: "1rem" }}>
+      <Typography variant="h3" gutterBottom>
+        Create Game
+      </Typography>
       <div style={{ marginBottom: "1rem" }}>
         <TextField
           label="Best Of"
@@ -29,7 +32,7 @@ const CreateLobby = () => {
         />
       </div>
       <Button onClick={() => socket.emit("create-lobby", bestOf)} variant="contained">
-        Create Lobby
+        Create
       </Button>
     </div>
   );
