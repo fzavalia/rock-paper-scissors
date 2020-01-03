@@ -54,9 +54,7 @@ export default class Connection {
     const game = lobby.toGame();
     this.lobbies.delete(lobby.id);
     this.games.set(game.id, game);
-    this.emitToPlayers(game, events.CREATED_GAME, {
-      game: { id: game.id, bestOf: game.bestOf, playerIds: game.getPlayerIds() }
-    });
+    this.emitToPlayers(game, events.CREATED_GAME, { game: this.gameToResponse(game) });
   };
 
   private findGame = (gameId: string) => {
@@ -64,24 +62,26 @@ export default class Connection {
     if (!game.hasPlayer(this.socket.id)) {
       throw new Error("Player does not belong to game");
     }
-    this.socket.emit(events.FOUND_GAME, {
-      game: { id: game.id, bestOf: game.bestOf, playerIds: game.getPlayerIds() }
-    });
+    this.socket.emit(events.FOUND_GAME, { game: this.gameToResponse(game) });
   };
 
   private playHand = (gameId: string, hand: string) => {
     const game = this.getGame(gameId);
     game.playHand(this.socket.id, Hand.fromString(hand));
-    this.emitToPlayers(game, events.PLAYED_HAND, { game, playerId: this.socket.id });
+    this.emitToPlayers(game, events.PLAYED_HAND, { game: this.gameToResponse(game), playerId: this.socket.id });
     if (game.isRoundOver()) {
-      this.emitToPlayers(game, events.ROUND_FINISHED, { game, winner: game.getRoundWinner() });
+      this.emitToPlayers(game, events.ROUND_FINISHED, {
+        game: this.gameToResponse(game),
+        winner: game.getRoundWinner()
+      });
       if (!game.isOver()) {
         game.startNextRound();
       } else {
-        this.emitToPlayers(game, events.GAME_FINISHED, { game, winner: game.getWinner() });
+        this.emitToPlayers(game, events.GAME_FINISHED, { game: this.gameToResponse(game), winner: game.getWinner() });
         this.games.delete(game.id);
       }
     }
+    this.emitToPlayers(game, events.UPDATED_GAME, { game: this.gameToResponse(game) });
   };
 
   private disconnect = () => {
@@ -154,4 +154,6 @@ export default class Connection {
       { playerId: this.socket.id },
       playerId => playerId !== this.socket.id
     );
+
+  private gameToResponse = (game: Game) => ({ id: game.id, bestOf: game.bestOf, playerIds: game.getPlayerIds() });
 }
