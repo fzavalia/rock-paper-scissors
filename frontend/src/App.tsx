@@ -17,16 +17,23 @@ const App = () => (
 );
 
 const Game = (props: { id: string }) => {
+  const [game, setGame] = useState<any>(undefined);
+
   useEffect(() => {
     socket.emit("find-game", props.id);
   }, []);
 
   useEffect(() => {
-    socket.on("found-game", console.log);
+    const onFoundGame = (data: any) => setGame(data.game);
+    socket.on("found-game", onFoundGame);
     return () => {
-      socket.off("found-game", console.log);
+      socket.off("found-game", onFoundGame);
     };
   });
+
+  if (!game) {
+    return null
+  }
 
   return null;
 };
