@@ -14,7 +14,7 @@ const CreateLobby = () => {
     return () => {
       socket.off("created-lobby", onLobbyCreated);
     };
-  }, []);
+  });
 
   return (
     <div style={{ padding: "1rem" }}>

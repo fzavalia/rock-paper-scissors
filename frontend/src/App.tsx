@@ -21,7 +21,7 @@ const Game = (props: { id: string }) => {
 
   useEffect(() => {
     socket.emit("find-game", props.id);
-  }, []);
+  }, [props.id]);
 
   useEffect(() => {
     const onFoundGame = (data: any) => setGame(data.game);
@@ -32,10 +32,10 @@ const Game = (props: { id: string }) => {
   });
 
   if (!game) {
-    return null
+    return null;
   }
 
-  return null;
+  return <div style={{ padding: "1rem" }}>foo</div>;
 };
 
 export default App;

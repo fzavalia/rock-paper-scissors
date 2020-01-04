@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { Typography, List, ListItem, Button, Card } from "@material-ui/core";
+import { Typography, List, ListItem, Button } from "@material-ui/core";
 import { socket } from "../App";
 
 const Lobby = (props: { id: string }) => {
@@ -11,7 +11,7 @@ const Lobby = (props: { id: string }) => {
   // join lobby
   useEffect(() => {
     socket.emit("join-lobby", props.id);
-  }, []);
+  }, [props.id]);
 
   // handle socket events
   useEffect(() => {
