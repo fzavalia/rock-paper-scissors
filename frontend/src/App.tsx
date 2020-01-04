@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import io from "socket.io-client";
 import CreateLobby from "./views/CreateLobby";
 import Lobby from "./views/Lobby";
+import { Typography } from "@material-ui/core";
 
 export const socket = io("http://localhost:8080");
 
@@ -35,7 +36,13 @@ const Game = (props: { id: string }) => {
     return null;
   }
 
-  return <div style={{ padding: "1rem" }}>foo</div>;
+  return (
+    <div style={{ padding: "1rem" }}>
+      <Typography variant="h3" gutterBottom>
+        Game
+      </Typography>
+    </div>
+  );
 };
 
 export default App;
