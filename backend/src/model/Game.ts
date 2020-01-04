@@ -51,6 +51,19 @@ export default class Game implements HasPlayers {
     this.rounds.push(new Round(this.player1Id, this.player2Id));
   };
 
+  toJSON = () => {
+    return {
+      id: this.id,
+      bestOf: this.bestOf,
+      player1Id: this.player1Id,
+      player2Id: this.player2Id,
+      rounds: this.rounds,
+      roundNumber: this.rounds.length,
+      isOver: this.isOver(),
+      winner: this.isOver() ? this.getWinner() : undefined
+    };
+  };
+
   private getNonTiedRoundsCount = () =>
     this.rounds.filter(round => {
       try {

@@ -31,4 +31,6 @@ export default class Hand {
     ]);
     return beatMap.get(this.value) === hand.value ? HandComparison.WIN : HandComparison.LOSE;
   };
+
+  toString = () => this.value.toString();
 }

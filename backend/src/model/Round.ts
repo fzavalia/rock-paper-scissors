@@ -26,6 +26,15 @@ export default class Round {
 
   isOver = () => this.hands.has(this.player1Id) && this.hands.has(this.player2Id);
 
+  toJSON = () => {
+    return {
+      [this.player1Id]: this.hands.get(this.player1Id)?.toString(),
+      [this.player2Id]: this.hands.get(this.player2Id)?.toString(),
+      isOver: this.isOver(),
+      winner: this.isOver() ? this.getWinner() : undefined
+    };
+  };
+
   private getPlayer1Result = () => {
     const player1Hand = this.hands.get(this.player1Id);
     const player2Hand = this.hands.get(this.player2Id);
