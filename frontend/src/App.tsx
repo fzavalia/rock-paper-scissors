@@ -63,7 +63,9 @@ const Game = (props: { id: string }) => {
           </div>
           <div>
             <div>Rounds</div>
-            
+            {game.rounds.map((r: any, i: any) => (
+              <div key={i}></div>
+            ))}
           </div>
         </>
       ) : (
