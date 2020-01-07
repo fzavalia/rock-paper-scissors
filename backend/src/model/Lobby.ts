@@ -2,55 +2,33 @@ import Game from "./Game";
 import HasPlayers from "./interfaces/HasPlayers";
 
 export default class Lobby implements HasPlayers {
-  private player1Id?: string;
-  private player2Id?: string;
+  private readonly playerIds = new Set<string>();
 
   constructor(readonly id: string, readonly bestOf: number) {}
 
-  getPlayerIds = () => {
-    const playerIds: string[] = [];
-    if (this.player1Id) {
-      playerIds.push(this.player1Id);
-    }
-    if (this.player2Id) {
-      playerIds.push(this.player2Id);
-    }
-    return playerIds;
-  };
+  getPlayerIds = () => Array.from(this.playerIds);
 
-  hasPlayer = (playerId: string) => this.getPlayerIds().includes(playerId);
+  hasPlayer = (playerId: string) => this.playerIds.has(playerId);
 
   join = (playerId: string) => {
-    if (this.getPlayerIds().includes(playerId)) {
+    if (this.playerIds.has(playerId)) {
       return;
     }
-    if (this.getPlayerIds().length >= 2) {
+    if (this.playerIds.size >= 2) {
       throw new Error("Lobby is full");
     }
-    if (!this.player1Id) {
-      this.player1Id = playerId;
-    } else {
-      this.player2Id = playerId;
-    }
+    this.playerIds.add(playerId);
   };
 
   toGame = () => {
-    const player1Id = this.player1Id;
-    const player2Id = this.player2Id;
-    if (!player1Id || !player2Id) {
+    if (this.playerIds.size < 2) {
       throw new Error("Missing players");
     }
-    return new Game(this.id, this.bestOf, player1Id, player2Id);
+    const playerIds = this.playerIds.values();
+    return new Game(this.id, this.bestOf, playerIds.next().value, playerIds.next().value);
   };
 
-  remove = (playerId: string) => {
-    if (this.player1Id === playerId) {
-      this.player1Id = undefined;
-    }
-    if (this.player2Id === playerId) {
-      this.player2Id = undefined;
-    }
-  };
+  remove = (playerId: string) => this.playerIds.delete(playerId);
 
   isEmpty = () => this.getPlayerIds().length === 0;
 }
