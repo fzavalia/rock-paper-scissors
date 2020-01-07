@@ -55,10 +55,12 @@ export default class Game implements HasPlayers {
     if (!this.hasPlayer(playerId)) {
       throw new Error("Player is not in game");
     }
-    const opponentId = this.player1Id === playerId ? this.player1Id : this.player2Id;
+    const opponentId = this.player1Id !== playerId ? this.player1Id : this.player2Id;
     return {
       id: this.id,
       bestOf: this.bestOf,
+      playerId,
+      opponentId,
       rounds: this.rounds.map(r => r.toJSONForPlayer(playerId)),
       isOver: this.isOver(),
       isRoundOver: this.isRoundOver(),
@@ -77,7 +79,8 @@ export default class Game implements HasPlayers {
       }
     }).length;
 
-  private getPlayerScore = (playerId: string) => this.rounds.map(x => x.getWinner() === playerId).length;
+  private getPlayerScore = (playerId: string) =>
+    this.rounds.filter(round => round.isOver()).filter(round => round.getWinner() === playerId).length;
 
   private getCurrentRound = () => this.rounds[this.rounds.length - 1];
 }

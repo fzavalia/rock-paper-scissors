@@ -35,7 +35,7 @@ export default class Round implements HasPlayers {
     if (!this.hasPlayer(playerId)) {
       throw new Error("Player is not in Round");
     }
-    const opponentId = this.player1Id === playerId ? this.player1Id : this.player2Id;
+    const opponentId = this.player1Id !== playerId ? this.player1Id : this.player2Id;
     return {
       playerHand: this.hands.get(playerId)?.toString(),
       opponentHand: this.hands.get(opponentId)?.toString(),

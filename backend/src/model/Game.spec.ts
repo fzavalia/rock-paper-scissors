@@ -107,4 +107,30 @@ describe("Game", () => {
       expect(() => game.startNextRound()).toThrow();
     });
   });
+
+  describe("toJSONForPlayer", () => {
+    it("fails when player is not in the game", () => {
+      const game = make1RoundGame();
+      expect(() => game.toJSONForPlayer("invalid")).toThrow();
+    });
+    
+    it("test on both players", () => {
+      const game = make1RoundGame();
+      const json1 = game.toJSONForPlayer(player1Id);
+      expect(json1.playerId).toBe(player1Id);
+      expect(json1.opponentId).toBe(player2Id);
+      expect(json1.isOver).toBeFalsy();
+      expect(json1.playerScore).toBe(0);
+      expect(json1.opponentScore).toBe(0);
+      expect(json1.winner).toBeUndefined();
+      makePlayer1WinRound(game);
+      const json2 = game.toJSONForPlayer(player2Id);
+      expect(json2.playerId).toBe(player2Id);
+      expect(json2.opponentId).toBe(player1Id);
+      expect(json2.isOver).toBeTruthy();
+      expect(json2.playerScore).toBe(0);
+      expect(json2.opponentScore).toBe(1);
+      expect(json2.winner).toBeFalsy();
+    });
+  });
 });
