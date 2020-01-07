@@ -1,9 +1,14 @@
 import Hand, { HandComparison } from "./Hand";
+import HasPlayers from "./interfaces/HasPlayers";
 
-export default class Round {
+export default class Round implements HasPlayers {
   private readonly hands: Map<string, Hand> = new Map();
 
   constructor(private player1Id: string, private player2Id: string) {}
+
+  getPlayerIds = () => [this.player1Id, this.player2Id];
+
+  hasPlayer = (playerId: string) => this.getPlayerIds().includes(playerId);
 
   playHand = (playerId: string, hand: Hand) => {
     this.validatePlayerId(playerId);
@@ -26,12 +31,16 @@ export default class Round {
 
   isOver = () => this.hands.has(this.player1Id) && this.hands.has(this.player2Id);
 
-  toJSON = () => {
+  toJSONForPlayer = (playerId: string) => {
+    if (!this.hasPlayer(playerId)) {
+      throw new Error("Player is not in Round");
+    }
+    const opponentId = this.player1Id === playerId ? this.player1Id : this.player2Id;
     return {
-      [this.player1Id]: this.hands.get(this.player1Id)?.toString(),
-      [this.player2Id]: this.hands.get(this.player2Id)?.toString(),
+      playerHand: this.hands.get(playerId)?.toString(),
+      opponentHand: this.hands.get(opponentId)?.toString(),
       isOver: this.isOver(),
-      winner: this.isOver() ? this.getWinner() : undefined
+      winner: this.isOver() ? this.getWinner() === playerId : undefined
     };
   };
 

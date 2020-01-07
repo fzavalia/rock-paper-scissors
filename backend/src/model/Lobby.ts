@@ -14,21 +14,37 @@ export default class Lobby implements HasPlayers {
     if (this.playerIds.has(playerId)) {
       return;
     }
-    if (this.playerIds.size >= 2) {
+    if (this.isFull()) {
       throw new Error("Lobby is full");
     }
     this.playerIds.add(playerId);
   };
 
   toGame = () => {
-    if (this.playerIds.size < 2) {
+    if (!this.isFull()) {
       throw new Error("Missing players");
     }
     const playerIds = this.playerIds.values();
     return new Game(this.id, this.bestOf, playerIds.next().value, playerIds.next().value);
   };
 
+  toJSONForPlayer = (playerId: string) => {
+    if (!this.hasPlayer(playerId)) {
+      throw new Error("Player not in Lobby");
+    }
+    const opponentId = this.getPlayerIds().filter(pid => pid !== playerId)[0];
+    return {
+      id: String,
+      playerId,
+      opponentId,
+      isEmpty: this.isEmpty(),
+      isFull: this.isFull()
+    };
+  };
+
   remove = (playerId: string) => this.playerIds.delete(playerId);
 
   isEmpty = () => this.getPlayerIds().length === 0;
+
+  isFull = () => this.getPlayerIds().length === 2;
 }
