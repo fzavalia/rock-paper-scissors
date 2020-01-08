@@ -17,7 +17,7 @@ export default class Connection {
     this.on(events.CREATE_LOBBY, bestOf => this.createLobby(bestOf));
     this.on(events.JOIN_LOBBY, lobbyId => this.joinLobby(lobbyId));
     this.on(events.CREATE_GAME, lobbyId => this.createGame(lobbyId));
-    this.on(events.FIND_GAME, gameId => this.findGame(gameId));
+    this.on(events.JOIN_GAME, gameId => this.joinGame(gameId));
     this.on(events.PLAY_HAND, data => this.playHand(data.gameId, data.hand));
     this.on(events.DISCONNECT, () => this.disconnect());
   }
@@ -43,10 +43,9 @@ export default class Connection {
   private joinLobby = (lobbyId: string) => {
     const lobby = this.getLobby(lobbyId);
     lobby.join(this.socket.id);
-    this.emitToPlayers(lobby, events.JOINED_LOBBY, {
-      lobby: { id: lobbyId, playerIds: lobby.getPlayerIds(), bestOf: lobby.bestOf },
-      playerId: this.socket.id
-    });
+    lobby
+      .getPlayerIds()
+      .forEach(playerId => this.sockets.get(playerId)?.emit(events.UPDATED_LOBBY, lobby.toJSONForPlayer(playerId)));
   };
 
   private createGame = (lobbyId: string) => {
@@ -54,37 +53,36 @@ export default class Connection {
     const game = lobby.toGame();
     this.lobbies.delete(lobby.id);
     this.games.set(game.id, game);
-    this.emitToPlayers(game, events.CREATED_GAME, this.makeGamePayload(game));
+    game
+      .getPlayerIds()
+      .forEach(playerId => this.sockets.get(playerId)?.emit(events.CREATED_GAME, game.toJSONForPlayer(playerId)));
   };
 
-  private findGame = (gameId: string) => {
+  private joinGame = (gameId: string) => {
     const game = this.getGame(gameId);
     if (!game.hasPlayer(this.socket.id)) {
       throw new Error("Player does not belong to game");
     }
-    this.socket.emit(events.FOUND_GAME, this.makeGamePayload(game));
+    this.socket.emit(events.UPDATED_GAME, game.toJSONForPlayer(this.socket.id));
   };
 
   private playHand = (gameId: string, hand: string) => {
     const game = this.getGame(gameId);
     game.playHand(this.socket.id, Hand.fromString(hand));
-    this.emitToPlayers(game, events.PLAYED_HAND, { game, playerId: this.socket.id });
-    if (game.isRoundOver()) {
-      this.emitToPlayers(game, events.ROUND_FINISHED, this.makeGamePayload(game, { winner: game.getRoundWinner() }));
-      if (!game.isOver()) {
-        game.startNextRound();
-      } else {
-        this.emitToPlayers(game, events.GAME_FINISHED, this.makeGamePayload(game, { winner: game.getWinner() }));
-        this.games.delete(game.id);
-      }
-    }
-    this.emitToPlayers(game, events.UPDATED_GAME, this.makeGamePayload(game));
+    game
+      .getPlayerIds()
+      .forEach(playerId => this.sockets.get(playerId)?.emit(events.UPDATED_GAME, game.toJSONForPlayer(playerId)));
   };
 
   private disconnect = () => {
     this.sockets.delete(this.socket.id);
-    this.handleLobbyOnDisconnect();
-    this.handleGameOnDisconnect();
+    const lobby = this.getWhereSocketIsPlayer(Array.from(this.lobbies.values()));
+    if (lobby) {
+      lobby.remove(this.socket.id);
+      lobby
+        .getPlayerIds()
+        .forEach(playerId => this.sockets.get(playerId)?.emit(events.UPDATED_LOBBY, lobby.toJSONForPlayer(playerId)));
+    }
   };
 
   private getLobby = (lobbyId: string): Lobby => {
@@ -103,25 +101,6 @@ export default class Connection {
     return game;
   };
 
-  private handleLobbyOnDisconnect = () => {
-    let lobby = this.getWhereSocketIsPlayer(Array.from(this.lobbies.values()));
-    if (lobby) {
-      lobby.remove(this.socket.id);
-      if (lobby.isEmpty()) {
-        this.lobbies.delete(lobby.id);
-      }
-      this.emitDisconnection(lobby);
-    }
-  };
-
-  private handleGameOnDisconnect = () => {
-    let game = this.getWhereSocketIsPlayer(Array.from(this.games.values()));
-    if (game) {
-      this.games.delete(game.id);
-      this.emitDisconnection(game);
-    }
-  };
-
   private getWhereSocketIsPlayer = <T extends HasPlayers>(xs: T[]) => {
     let hp: T | undefined;
     for (let x of xs) {
@@ -131,28 +110,5 @@ export default class Connection {
       }
     }
     return hp;
-  };
-
-  private emitToPlayers = (
-    x: HasPlayers,
-    event: string,
-    payload: any,
-    filter: (playerId: string) => boolean = () => true
-  ) => {
-    x.getPlayerIds()
-      .filter(filter)
-      .forEach(playerId => this.sockets.get(playerId)?.emit(event, payload));
-  };
-
-  private emitDisconnection = (x: HasPlayers) =>
-    this.emitToPlayers(
-      x,
-      events.OPPONENT_DISCONNECTED,
-      { playerId: this.socket.id },
-      playerId => playerId !== this.socket.id
-    );
-
-  private makeGamePayload = (game: Game, extend?: any) => {
-    return { ...extend, game: game.toJSONForPlayer(this.socket.id) };
   };
 }

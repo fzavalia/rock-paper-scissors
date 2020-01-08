@@ -89,25 +89,6 @@ describe("Game", () => {
     });
   });
 
-  describe("startNextRound", () => {
-    it("succeeds", () => {
-      const game = make2RoundGame();
-      makePlayer1WinRound(game);
-      game.startNextRound();
-    });
-
-    it("fails when round is not over", () => {
-      const game = make1RoundGame();
-      expect(() => game.startNextRound()).toThrow();
-    });
-
-    it("fails when game is over", () => {
-      const game = make1RoundGame();
-      makePlayer1WinRound(game);
-      expect(() => game.startNextRound()).toThrow();
-    });
-  });
-
   describe("toJSONForPlayer", () => {
     it("fails when player is not in the game", () => {
       const game = make1RoundGame();

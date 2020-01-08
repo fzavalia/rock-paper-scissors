@@ -16,6 +16,9 @@ export default class Game implements HasPlayers {
   playHand = (playerId: string, hand: Hand) => {
     const currentRound = this.getCurrentRound();
     currentRound.playHand(playerId, hand);
+    if (this.isRoundOver() && !this.isOver()) {
+      this.rounds.push(new Round(this.player1Id, this.player2Id));
+    }
   };
 
   isRoundOver = () => this.getCurrentRound().isOver();
@@ -39,16 +42,6 @@ export default class Game implements HasPlayers {
         [0, 0]
       );
     return player1Wins > player2Wins ? this.player1Id : this.player2Id;
-  };
-
-  startNextRound = () => {
-    if (!this.isRoundOver()) {
-      throw new Error("Round is not over");
-    }
-    if (this.isOver()) {
-      throw new Error("Game is over");
-    }
-    this.rounds.push(new Round(this.player1Id, this.player2Id));
   };
 
   toJSONForPlayer = (playerId: string) => {
