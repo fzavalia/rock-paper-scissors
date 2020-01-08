@@ -37,7 +37,7 @@ export default class Connection {
   private createLobby = (bestOf: number) => {
     const lobby: Lobby = new Lobby(uuid(), bestOf);
     this.lobbies.set(lobby.id, lobby);
-    this.socket.emit(events.CREATED_LOBBY, { lobby: { id: lobby.id } });
+    this.socket.emit(events.CREATED_LOBBY, lobby);
   };
 
   private joinLobby = (lobbyId: string) => {

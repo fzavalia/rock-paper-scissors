@@ -42,6 +42,12 @@ export default class Lobby implements HasPlayers {
     };
   };
 
+  toJSON = () => {
+    return {
+      id: this.id
+    };
+  };
+
   remove = (playerId: string) => this.playerIds.delete(playerId);
 
   isEmpty = () => this.getPlayerIds().length === 0;
