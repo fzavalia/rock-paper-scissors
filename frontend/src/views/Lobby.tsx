@@ -15,21 +15,15 @@ const Lobby = (props: { id: string }) => {
 
   // handle socket events
   useEffect(() => {
-    const onJoinedLobby = (data: any) => setLobby(data.lobby);
+    const onUpdatedLobby = (lobby: any) => setLobby(lobby);
     const onRuntimeError = () => history.push("/");
-    const onGameCreated = (data: any) => history.push(`/games/${data.game.id}`);
-    const onOpponentDisconnected = (data: any) => {
-      const playerIds = lobby.playerIds.filter((pid: any) => pid !== data.playerId);
-      setLobby({ ...lobby, playerIds });
-    };
-    socket.on("joined-lobby", onJoinedLobby);
+    const onGameCreated = (game: any) => history.push(`/games/${game.id}`);
+    socket.on("updated-lobby", onUpdatedLobby);
     socket.on("runtime-error", onRuntimeError);
-    socket.on("opponent-disconnected", onOpponentDisconnected);
     socket.on("created-game", onGameCreated);
     return () => {
-      socket.off("joined-lobby", onJoinedLobby);
+      socket.off("updated-lobby", onUpdatedLobby);
       socket.off("runtime-error", onRuntimeError);
-      socket.off("opponent-disconnected", onOpponentDisconnected);
       socket.off("created-game", onGameCreated);
     };
   });
@@ -41,22 +35,10 @@ const Lobby = (props: { id: string }) => {
 
   return (
     <div style={{ padding: "1rem" }}>
-      <Typography variant="h3" gutterBottom>
-        Game Lobby
+      <Typography variant="body1" gutterBottom>
+        {lobby.opponentId ? "All players are ready!" : "Waiting for opponent..."}
       </Typography>
-      <Typography variant="h6" gutterBottom>
-        Players
-      </Typography>
-      <List style={{ marginBottom: "1rem" }}>
-        {lobby.playerIds.map((playerId: any) => (
-          <ListItem>{playerId}</ListItem>
-        ))}
-      </List>
-      <Button
-        disabled={lobby.playerIds.length < 2}
-        onClick={() => socket.emit("create-game", lobby.id)}
-        variant="contained"
-      >
+      <Button disabled={!lobby.opponentId} onClick={() => socket.emit("create-game", lobby.id)} variant="contained">
         Start
       </Button>
     </div>
