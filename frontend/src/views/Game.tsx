@@ -46,39 +46,9 @@ const Game = (props: { id: string }) => {
             </Typography>
           )}
           <div>
-            <Button
-              disabled={!game.hasToPlay}
-              style={{ marginRight: "1rem" }}
-              variant="outlined"
-              onClick={() => {
-                setPlayedHand("Rock");
-                socket.emit("play-hand", { gameId: game.id, hand: "rock" });
-              }}
-            >
-              ROCK
-            </Button>
-            <Button
-              disabled={!game.hasToPlay}
-              style={{ marginRight: "1rem" }}
-              variant="outlined"
-              onClick={() => {
-                setPlayedHand("Paper");
-                socket.emit("play-hand", { gameId: game.id, hand: "paper" });
-              }}
-            >
-              PAPER
-            </Button>
-            <Button
-              disabled={!game.hasToPlay}
-              style={{ marginRight: "1rem" }}
-              variant="outlined"
-              onClick={() => {
-                setPlayedHand("Scissors");
-                socket.emit("play-hand", { gameId: game.id, hand: "scissors" });
-              }}
-            >
-              SCISSORS
-            </Button>
+            <HandTypeButton game={game} type={"rock"} setPlayedHand={setPlayedHand} />
+            <HandTypeButton game={game} type={"paper"} setPlayedHand={setPlayedHand} />
+            <HandTypeButton game={game} type={"scissors"} setPlayedHand={setPlayedHand} />
           </div>
         </>
       ) : (
@@ -101,5 +71,19 @@ const Game = (props: { id: string }) => {
     </div>
   );
 };
+
+const HandTypeButton = (props: { game: any; type: string; setPlayedHand: (hand: string) => void }) => (
+  <Button
+    disabled={!props.game.hasToPlay}
+    style={{ marginRight: "1rem" }}
+    variant="outlined"
+    onClick={() => {
+      props.setPlayedHand(props.type.toUpperCase());
+      socket.emit("play-hand", { gameId: props.game.id, hand: props.type });
+    }}
+  >
+    {props.type.toUpperCase()}
+  </Button>
+);
 
 export default Game;
