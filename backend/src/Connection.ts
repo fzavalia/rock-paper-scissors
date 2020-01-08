@@ -14,7 +14,7 @@ export default class Connection {
     private readonly lobbies: Map<string, Lobby>
   ) {
     sockets.set(socket.id, socket);
-    this.on(events.CREATE_LOBBY, bestOf => this.createLobby(bestOf));
+    this.on(events.CREATE_LOBBY, goal => this.createLobby(goal));
     this.on(events.JOIN_LOBBY, lobbyId => this.joinLobby(lobbyId));
     this.on(events.CREATE_GAME, lobbyId => this.createGame(lobbyId));
     this.on(events.JOIN_GAME, gameId => this.joinGame(gameId));
@@ -34,8 +34,8 @@ export default class Connection {
     });
   };
 
-  private createLobby = (bestOf: number) => {
-    const lobby: Lobby = new Lobby(uuid(), bestOf);
+  private createLobby = (goal: number) => {
+    const lobby: Lobby = new Lobby(uuid(), goal);
     this.lobbies.set(lobby.id, lobby);
     this.socket.emit(events.CREATED_LOBBY, lobby);
   };

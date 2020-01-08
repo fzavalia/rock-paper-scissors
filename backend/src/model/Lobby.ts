@@ -4,7 +4,7 @@ import HasPlayers from "./interfaces/HasPlayers";
 export default class Lobby implements HasPlayers {
   private readonly playerIds = new Set<string>();
 
-  constructor(readonly id: string, readonly bestOf: number) {}
+  constructor(readonly id: string, readonly goal: number) {}
 
   getPlayerIds = () => Array.from(this.playerIds);
 
@@ -25,7 +25,7 @@ export default class Lobby implements HasPlayers {
       throw new Error("Missing players");
     }
     const playerIds = this.playerIds.values();
-    return new Game(this.id, this.bestOf, playerIds.next().value, playerIds.next().value);
+    return new Game(this.id, this.goal, playerIds.next().value, playerIds.next().value);
   };
 
   toJSONForPlayer = (playerId: string) => {
@@ -34,7 +34,7 @@ export default class Lobby implements HasPlayers {
     }
     const opponentId = this.getPlayerIds().filter(pid => pid !== playerId)[0];
     return {
-      id: String,
+      id: this.id,
       playerId,
       opponentId,
       isEmpty: this.isEmpty(),

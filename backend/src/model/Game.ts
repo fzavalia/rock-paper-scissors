@@ -5,7 +5,7 @@ import HasPlayers from "./interfaces/HasPlayers";
 export default class Game implements HasPlayers {
   private readonly rounds: Round[];
 
-  constructor(readonly id: string, readonly bestOf: number, readonly player1Id: string, readonly player2Id: string) {
+  constructor(readonly id: string, readonly goal: number, readonly player1Id: string, readonly player2Id: string) {
     this.rounds = [new Round(player1Id, player2Id)];
   }
 
@@ -25,10 +25,10 @@ export default class Game implements HasPlayers {
 
   getRoundWinner = () => this.getCurrentRound().getWinner();
 
-  isOver = () => this.getNonTiedRoundsCount() >= this.bestOf;
+  isOver = () => this.goalReached();
 
   getWinner = () => {
-    if (this.getNonTiedRoundsCount() < this.bestOf) {
+    if (!this.goalReached()) {
       throw new Error("Game not finished");
     }
     const [player1Wins, player2Wins] = this.rounds
@@ -51,7 +51,7 @@ export default class Game implements HasPlayers {
     const opponentId = this.player1Id !== playerId ? this.player1Id : this.player2Id;
     return {
       id: this.id,
-      bestOf: this.bestOf,
+      goal: this.goal,
       playerId,
       opponentId,
       rounds: this.rounds.map(r => r.toJSONForPlayer(playerId)),
@@ -63,14 +63,8 @@ export default class Game implements HasPlayers {
     };
   };
 
-  private getNonTiedRoundsCount = () =>
-    this.rounds.filter(round => {
-      try {
-        return round.getWinner() !== undefined;
-      } catch (e) {
-        return false;
-      }
-    }).length;
+  private goalReached = () =>
+    this.getPlayerScore(this.player1Id) >= this.goal || this.getPlayerScore(this.player2Id) >= this.goal;
 
   private getPlayerScore = (playerId: string) =>
     this.rounds.filter(round => round.isOver()).filter(round => round.getWinner() === playerId).length;
