@@ -59,7 +59,8 @@ export default class Game implements HasPlayers {
       isRoundOver: this.isRoundOver(),
       winner: this.isOver() ? this.getWinner() === playerId : undefined,
       playerScore: this.getPlayerScore(playerId),
-      opponentScore: this.getPlayerScore(opponentId)
+      opponentScore: this.getPlayerScore(opponentId),
+      hasToPlay: this.getCurrentRound().playerHasToPlay(playerId)
     };
   };
 

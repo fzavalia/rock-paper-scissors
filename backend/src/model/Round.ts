@@ -31,6 +31,11 @@ export default class Round implements HasPlayers {
 
   isOver = () => this.hands.has(this.player1Id) && this.hands.has(this.player2Id);
 
+  playerHasToPlay = (playerId: string) => {
+    this.validatePlayerId(playerId);
+    return !this.hands.get(playerId);
+  };
+
   toJSONForPlayer = (playerId: string) => {
     if (!this.hasPlayer(playerId)) {
       throw new Error("Player is not in Round");
