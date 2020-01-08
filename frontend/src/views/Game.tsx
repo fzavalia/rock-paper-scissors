@@ -53,16 +53,9 @@ const Game = (props: { id: string }) => {
         </>
       ) : (
         <>
-          {game.winner === socket.id ? (
-            <Typography variant="body1" gutterBottom>
-              You have <b>won</b> the game!
-            </Typography>
-          ) : (
-            <Typography variant="body1" gutterBottom>
-              You have <b>lost</b> the game...
-            </Typography>
-          )}
-
+          <Typography variant="body1" gutterBottom>
+            You have <b>{game.winner ? "won" : "lost"}</b> the game!
+          </Typography>
           <Button variant="outlined" onClick={() => history.push("/")}>
             Return
           </Button>
