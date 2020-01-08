@@ -6,10 +6,10 @@ import { socket } from "../App";
 const CreateLobby = () => {
   const history = useHistory();
 
-  const [bestOf, setBestOf] = useState(1);
+  const [goal, setGoal] = useState(1);
 
   useEffect(() => {
-    const onLobbyCreated = (data: any) => history.push(`/lobbies/${data.lobby.id}`);
+    const onLobbyCreated = (lobby: any) => history.push(`/lobbies/${lobby.id}`);
     socket.on("created-lobby", onLobbyCreated);
     return () => {
       socket.off("created-lobby", onLobbyCreated);
@@ -18,20 +18,19 @@ const CreateLobby = () => {
 
   return (
     <div style={{ padding: "1rem" }}>
-      <Typography variant="h3" gutterBottom>
+      <Typography variant="body1" gutterBottom>
         Create Game
       </Typography>
       <div style={{ marginBottom: "1rem" }}>
         <TextField
-          label="Best Of"
-          helperText="The amount of rounds to be played"
+          label="Goal"
+          helperText="The amount of rounds a player needs to win to be victorious"
           type="number"
-          value={bestOf}
-          variant="outlined"
-          onChange={e => setBestOf(Math.max(0, parseInt(e.target.value)))}
+          value={goal}
+          onChange={e => setGoal(Math.max(0, parseInt(e.target.value)))}
         />
       </div>
-      <Button onClick={() => socket.emit("create-lobby", bestOf)} variant="contained">
+      <Button onClick={() => socket.emit("create-lobby", goal)} variant="outlined">
         Create
       </Button>
     </div>
