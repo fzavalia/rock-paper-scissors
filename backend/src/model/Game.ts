@@ -36,7 +36,7 @@ export default class Game implements HasPlayers {
       .reduce(
         (acc, winner) => {
           if (winner === this.player1Id) acc[0]++;
-          else acc[1]++;
+          else if (winner === this.player2Id) acc[1]++;
           return acc;
         },
         [0, 0]
