@@ -14,11 +14,12 @@ const Game = (props: { id: string }) => {
   }, []);
 
   useEffect(() => {
+    const onRuntimeError = () => history.push("/");
     socket.on("updated-game", setGame);
-    socket.on("runtime-error", console.log);
+    socket.on("runtime-error", onRuntimeError);
     return () => {
       socket.off("updated-game", setGame);
-      socket.off("runtime-error", console.log);
+      socket.off("runtime-error", onRuntimeError);
     };
   });
 
