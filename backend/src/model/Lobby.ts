@@ -4,7 +4,11 @@ import HasPlayers from "./interfaces/HasPlayers";
 export default class Lobby implements HasPlayers {
   private readonly playerIds = new Set<string>();
 
-  constructor(readonly id: string, readonly goal: number) {}
+  constructor(readonly id: string, readonly goal: number, public _lastInteraction: Date = new Date()) {}
+
+  get lastInteraction() {
+    return this._lastInteraction;
+  }
 
   getPlayerIds = () => Array.from(this.playerIds);
 
@@ -18,6 +22,7 @@ export default class Lobby implements HasPlayers {
       throw new Error("Lobby is full");
     }
     this.playerIds.add(playerId);
+    this._lastInteraction = new Date();
   };
 
   toGame = () => {

@@ -5,8 +5,18 @@ import HasPlayers from "./interfaces/HasPlayers";
 export default class Game implements HasPlayers {
   private readonly rounds: Round[];
 
-  constructor(readonly id: string, readonly goal: number, readonly player1Id: string, readonly player2Id: string) {
+  constructor(
+    readonly id: string,
+    readonly goal: number,
+    readonly player1Id: string,
+    readonly player2Id: string,
+    private _lastInteraction: Date = new Date()
+  ) {
     this.rounds = [new Round(player1Id, player2Id)];
+  }
+
+  get lastInteraction() {
+    return this._lastInteraction;
   }
 
   getPlayerIds = () => [this.player1Id, this.player2Id];
@@ -19,6 +29,7 @@ export default class Game implements HasPlayers {
     if (this.isRoundOver() && !this.isOver()) {
       this.rounds.push(new Round(this.player1Id, this.player2Id));
     }
+    this._lastInteraction = new Date();
   };
 
   isRoundOver = () => this.getCurrentRound().isOver();
