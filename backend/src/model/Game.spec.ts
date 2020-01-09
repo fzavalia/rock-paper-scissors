@@ -5,10 +5,14 @@ const player1Id = "player1Id";
 const player2Id = "player2Id";
 
 const make1RoundGame = () => new Game("id", 1, player1Id, player2Id);
-const make2RoundGame = () => new Game("id", 2, player1Id, player2Id);
 
 const makePlayer1WinRound = (game: Game) => {
   game.playHand(player1Id, new Hand(HandType.PAPER));
+  game.playHand(player2Id, new Hand(HandType.ROCK));
+};
+
+const makeTie = (game: Game) => {
+  game.playHand(player1Id, new Hand(HandType.ROCK));
   game.playHand(player2Id, new Hand(HandType.ROCK));
 };
 
@@ -45,6 +49,15 @@ describe("Game", () => {
   describe("getWinner", () => {
     it("succeeds", () => {
       const game = make1RoundGame();
+      makePlayer1WinRound(game);
+      expect(game.getWinner()).toBe(player1Id);
+    });
+
+    it("succeeds with ties", () => {
+      const game = make1RoundGame();
+      makeTie(game);
+      makeTie(game);
+      makeTie(game);
       makePlayer1WinRound(game);
       expect(game.getWinner()).toBe(player1Id);
     });
@@ -94,7 +107,7 @@ describe("Game", () => {
       const game = make1RoundGame();
       expect(() => game.toJSONForPlayer("invalid")).toThrow();
     });
-    
+
     it("test on both players", () => {
       const game = make1RoundGame();
       const json1 = game.toJSONForPlayer(player1Id);
