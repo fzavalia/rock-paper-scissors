@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import { Button, TextField, Typography } from "@material-ui/core";
+import { Button, TextField, Typography, Card, CardContent } from "@material-ui/core";
 import { socket } from "../App";
 
 const CreateLobby = () => {
@@ -18,21 +18,25 @@ const CreateLobby = () => {
 
   return (
     <div style={{ padding: "1rem" }}>
-      <Typography variant="body1" gutterBottom>
-        Create Game
-      </Typography>
-      <div style={{ marginBottom: "1rem" }}>
-        <TextField
-          label="Goal"
-          helperText="The amount of rounds a player needs to win to be victorious"
-          type="number"
-          value={goal}
-          onChange={e => setGoal(Math.max(0, parseInt(e.target.value)))}
-        />
-      </div>
-      <Button onClick={() => socket.emit("create-lobby", goal)} variant="outlined">
-        Create
-      </Button>
+      <Card style={{ display: "inline-block" }}>
+        <CardContent>
+          <Typography variant="body1" gutterBottom>
+            Create Game
+          </Typography>
+          <div style={{ marginBottom: "1rem" }}>
+            <TextField
+              label="Goal"
+              helperText="The amount of rounds a player needs to win to be victorious"
+              type="number"
+              value={goal}
+              onChange={e => setGoal(Math.max(0, parseInt(e.target.value)))}
+            />
+          </div>
+          <Button onClick={() => socket.emit("create-lobby", goal)} variant="outlined">
+            Create
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 };

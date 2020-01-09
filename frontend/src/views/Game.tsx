@@ -29,50 +29,49 @@ const Game = (props: { id: string }) => {
 
   return (
     <div style={{ padding: "1rem" }}>
-      <Typography variant="body1" gutterBottom>
-        Goal: <b>{game.goal}</b>
-      </Typography>
-      <Typography variant="body1" gutterBottom>
-        Your score: <b>{game.playerScore}</b> - Opponent score: <b>{game.opponentScore}</b>
-      </Typography>
-      {!game.isOver ? (
-        <>
-          {game.hasToPlay ? (
-            <Typography variant="body1" gutterBottom>
-              Select what you want to play by clicking on one of the buttons...
-            </Typography>
-          ) : (
-            <Typography variant="body1" gutterBottom>
-              You have chosen <b>{playedHand}</b>! Waiting for opponent to play...
-            </Typography>
-          )}
-          <div>
-            <HandTypeButton game={game} type={"rock"} setPlayedHand={setPlayedHand} />
-            <HandTypeButton game={game} type={"paper"} setPlayedHand={setPlayedHand} />
-            <HandTypeButton game={game} type={"scissors"} setPlayedHand={setPlayedHand} />
-          </div>
-        </>
-      ) : (
-        <>
-          <Typography variant="body2" gutterBottom>
-            You have <b>{game.winner ? "WON" : "LOST"}</b> the game!
-          </Typography>
-          <Button variant="outlined" onClick={() => history.push("/")}>
-            Return
-          </Button>
-        </>
-      )}
-      <Card style={{ marginTop: "1rem" }}>
+      <Card style={{ display: "inline-block" }}>
         <CardContent>
-          <Typography variant="caption" gutterBottom>
-            Feed
+          <Typography variant="body1" gutterBottom>
+            Goal: <b>{game.goal}</b>
           </Typography>
-          <List>
+          <Typography variant="body1" gutterBottom>
+            Your score: <b>{game.playerScore}</b> - Opponent score: <b>{game.opponentScore}</b>
+          </Typography>
+          {!game.isOver ? (
+            <>
+              {game.hasToPlay ? (
+                <Typography variant="body1" gutterBottom>
+                  Select what you want to play by clicking on one of the buttons...
+                </Typography>
+              ) : (
+                <Typography variant="body1" gutterBottom>
+                  You have chosen <b>{playedHand}</b>! Waiting for opponent to play...
+                </Typography>
+              )}
+              <div style={{ marginTop: "1rem" }}>
+                <HandTypeButton game={game} type={"rock"} setPlayedHand={setPlayedHand} />
+                <HandTypeButton game={game} type={"paper"} setPlayedHand={setPlayedHand} />
+                <HandTypeButton game={game} type={"scissors"} setPlayedHand={setPlayedHand} />
+              </div>
+            </>
+          ) : (
+            <>
+              <Typography variant="body2" gutterBottom>
+                You have <b>{game.winner ? "WON" : "LOST"}</b> the game!
+              </Typography>
+              <Button style={{ marginTop: "1rem" }} variant="outlined" onClick={() => history.push("/")}>
+                Return
+              </Button>
+            </>
+          )}
+          <div style={{ marginTop: "1rem" }}>
             {game.rounds
               .filter((r: any) => r.isOver)
+              .reverse()
               .map((r: any) => (
-                <ListItem>
-                  <Typography variant="body1">
+                <div>
+                  <Typography variant="caption" gutterBottom>
+                    -{" "}
                     {r.playerHand === r.opponentHand ? (
                       <>
                         <i>TIED</i> with <b>{r.playerHand.toUpperCase()}</b>
@@ -84,9 +83,9 @@ const Game = (props: { id: string }) => {
                       </>
                     )}
                   </Typography>
-                </ListItem>
+                </div>
               ))}
-          </List>
+          </div>
         </CardContent>
       </Card>
     </div>
