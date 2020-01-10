@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { Typography, List, ListItem, Button } from "@material-ui/core";
+import { Typography, Button } from "@material-ui/core";
 import { socket } from "../App";
 
 const Lobby = (props: { id: string }) => {

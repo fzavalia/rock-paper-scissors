@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { Typography, Button, Card, CardContent, List, ListItem } from "@material-ui/core";
+import { Typography, Button, Card, CardContent } from "@material-ui/core";
 import { socket } from "../App";
 
 const Game = (props: { id: string }) => {
