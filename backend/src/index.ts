@@ -16,18 +16,21 @@ const games = new Map<string, Game>();
 const lobbies = new Map<string, Lobby>();
 
 const scheduleStaleElementsRemoval = (map: Map<string, { lastInteraction: Date }>, name: string) => {
-  const tenMinutes = 10 * 60 * 1000;
+  const minutes = {
+    60: 60 * 60 * 1000,
+    30: 30 * 60 * 1000
+  };
   setInterval(() => {
     console.log(`--- Deleting stale elements (${name})`);
     const now = +new Date();
     Array.from(map)
-      .filter(([_, element]) => now - +element.lastInteraction > tenMinutes)
+      .filter(([_, element]) => now - +element.lastInteraction > minutes[60])
       .forEach(([id, _]) => {
         map.delete(id);
         console.log(id);
       });
     console.log(`--- Finished deleting stale elements (${name})`);
-  }, tenMinutes);
+  }, minutes[30]);
 };
 
 scheduleStaleElementsRemoval(games, "game");
