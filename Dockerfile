@@ -8,6 +8,8 @@ COPY backend backend
 
 COPY build.sh build.sh
 
+RUN chmod +x build.sh
+
 RUN ./build.sh
 
 FROM node:12.14.1-alpine
