@@ -32,7 +32,7 @@ RUN cp -r backend/build dist/server
 
 RUN cp -r backend/node_modules dist/node_modules
 
-RUN cp -r frontend/build dist/server/frontend
+RUN cp -r frontend/build dist/server/public
 
 FROM node:12.14.1-alpine
 

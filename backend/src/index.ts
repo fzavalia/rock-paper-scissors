@@ -1,6 +1,7 @@
 import io, { Socket } from "socket.io";
 import express from "express";
 import http from "http";
+import path from "path";
 import * as events from "./events";
 import Connection from "./Connection";
 import Game from "./model/Game";
@@ -33,6 +34,12 @@ scheduleStaleElementsRemoval(games, "game");
 scheduleStaleElementsRemoval(lobbies, "lobby");
 
 wss.on(events.CONNECTION, socket => new Connection(socket, sockets, games, lobbies));
+
+app.use(express.static(path.resolve(__dirname, "public")));
+
+app.get("*", (_, res) => {
+  res.sendFile(path.resolve(__dirname, "public", "index.html"));
+});
 
 server.listen(8080, function() {
   console.log("listening on *:8080");

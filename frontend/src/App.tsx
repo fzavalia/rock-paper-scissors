@@ -5,7 +5,7 @@ import CreateLobby from "./views/CreateLobby";
 import Lobby from "./views/Lobby";
 import Game from "./views/Game";
 
-export const socket = io("http://localhost:8080");
+export const socket = io(process.env.REACT_APP_SOCKET_HOST || "");
 
 const App = () => (
   <Router>
