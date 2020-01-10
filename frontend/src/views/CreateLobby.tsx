@@ -17,27 +17,17 @@ const CreateLobby = () => {
   });
 
   return (
-    <div style={{ padding: "1rem" }}>
-      <Card style={{ display: "inline-block" }}>
-        <CardContent>
-          <Typography variant="body1" gutterBottom>
-            Create Game
-          </Typography>
-          <div style={{ marginBottom: "1rem" }}>
-            <TextField
-              label="Goal"
-              helperText="The amount of rounds a player needs to win to be victorious"
-              type="number"
-              value={goal}
-              onChange={e => setGoal(Math.max(0, parseInt(e.target.value)))}
-            />
-          </div>
-          <Button onClick={() => socket.emit("create-lobby", goal)} variant="outlined">
-            Create
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+    <>
+      <Typography variant="body1" gutterBottom>
+        Choose the amount of wins a player must obtain to win the game.
+      </Typography>
+      <div style={{ marginBottom: "1rem" }}>
+        <TextField type="number" value={goal} onChange={e => setGoal(Math.max(0, parseInt(e.target.value)))} />
+      </div>
+      <Button onClick={() => socket.emit("create-lobby", goal)} variant="outlined">
+        Play
+      </Button>
+    </>
   );
 };
 

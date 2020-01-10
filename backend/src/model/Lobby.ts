@@ -44,7 +44,8 @@ export default class Lobby implements HasPlayers, HasLastInteraction {
       playerId,
       opponentId,
       isEmpty: this.isEmpty(),
-      isFull: this.isFull()
+      isFull: this.isFull(),
+      goal: this.goal
     };
   };
 

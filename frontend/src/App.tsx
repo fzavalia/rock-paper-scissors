@@ -6,6 +6,7 @@ import CreateLobby from "./views/CreateLobby";
 import Lobby from "./views/Lobby";
 import Game from "./views/Game";
 import ErrorNotification from "./components/ErrorNotification";
+import { Typography } from "@material-ui/core";
 
 export const socket = io(process.env.REACT_APP_SOCKET_HOST || "");
 
@@ -13,13 +14,18 @@ const App = () => {
   return (
     <SnackbarProvider maxSnack={3}>
       <ErrorNotification>
-        <Router>
-          <Switch>
-            <Route path="/lobbies/:id" render={props => <Lobby id={props.match.params.id} />}></Route>
-            <Route path="/games/:id" render={props => <Game id={props.match.params.id} />}></Route>
-            <Route component={CreateLobby}></Route>
-          </Switch>
-        </Router>
+        <div style={{ padding: "1rem" }}>
+          <Typography variant="h5" gutterBottom>
+            <b>Rock, Paper Scissors Online!</b>
+          </Typography>
+          <Router>
+            <Switch>
+              <Route path="/lobbies/:id" render={props => <Lobby id={props.match.params.id} />}></Route>
+              <Route path="/games/:id" render={props => <Game id={props.match.params.id} />}></Route>
+              <Route component={CreateLobby}></Route>
+            </Switch>
+          </Router>
+        </div>
       </ErrorNotification>
     </SnackbarProvider>
   );

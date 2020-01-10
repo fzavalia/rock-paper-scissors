@@ -49,6 +49,9 @@ export default class Connection {
   };
 
   private createGame = (lobbyId: string) => {
+    if (this.games.has(lobbyId)) {
+      return;
+    }
     const lobby = this.getLobby(lobbyId);
     const game = lobby.toGame();
     this.lobbies.delete(lobby.id);

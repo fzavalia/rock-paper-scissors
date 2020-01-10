@@ -1,12 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Component } from "react";
 import { useHistory } from "react-router-dom";
-import { Typography, Button } from "@material-ui/core";
+import { Typography, Button, MenuList, MenuItem, Menu } from "@material-ui/core";
 import { socket } from "../App";
+import CopyToClipboard from "react-copy-to-clipboard";
+import { WithSnackbarProps, withSnackbar } from "notistack";
+import CopyUrlMenuItem from "../components/CopyUrlMenuItem";
 
 const Lobby = (props: { id: string }) => {
   const history = useHistory();
 
   const [lobby, setLobby] = useState<any>(undefined);
+  const [anchorEl, setAnchorEl] = useState<any>(undefined);
 
   // join lobby
   useEffect(() => {
@@ -28,26 +32,52 @@ const Lobby = (props: { id: string }) => {
     };
   });
 
+  const openMenu = (e: any) => setAnchorEl(e.currentTarget);
+
+  const closeMenu = () => setAnchorEl(undefined);
+
   // dont show anything if lobby hasn't been joined yet
   if (!lobby) {
     return null;
   }
 
+  console.log(lobby);
+
   return (
-    <div style={{ padding: "1rem" }}>
-      <Typography variant="body1" gutterBottom>
-        Share this URL with the person you want to play with:
+    <>
+      <Typography variant="subtitle2" gutterBottom>
+        Goal: <b>{lobby.goal}</b> win/s
       </Typography>
-      <Typography variant="body1" gutterBottom>
-        <i>{window.location.href}</i>
+      <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={closeMenu}>
+        <CopyUrlMenuItem onClick={closeMenu} />
+        <MenuItem onClick={closeMenu}>
+          <a
+            style={{ textDecoration: "none", color: "inherit" }}
+            href={`whatsapp://send?text=${window.location.href}`}
+            data-action="share/whatsapp/share"
+          >
+            Whatsapp
+          </a>
+        </MenuItem>
+      </Menu>
+      <Typography gutterBottom>
+        {lobby.opponentId ? <>Your opponent has joined! You can start the game now!</> : <i>Waiting for opponent...</i>}
       </Typography>
-      <Typography style={{ marginTop: "2rem" }} variant="body1" gutterBottom>
-        {lobby.opponentId ? "All players are ready!" : "Waiting for opponent..."}
-      </Typography>
-      <Button disabled={!lobby.opponentId} onClick={() => socket.emit("create-game", lobby.id)} variant="contained">
-        Start
-      </Button>
-    </div>
+      {lobby.opponentId ? (
+        <Button
+          style={{ marginTop: "0.3rem" }}
+          disabled={!lobby.opponentId}
+          onClick={() => socket.emit("create-game", lobby.id)}
+          variant="outlined"
+        >
+          Start Game
+        </Button>
+      ) : (
+        <Button onClick={openMenu} variant="outlined">
+          Invite
+        </Button>
+      )}
+    </>
   );
 };
 
