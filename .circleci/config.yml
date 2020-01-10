@@ -1,0 +1,29 @@
+version: 2
+jobs:
+  build:
+    machine: true
+    branches:
+      only:
+        - master
+    steps:
+      - checkout
+      - run:
+          name: Docker Login
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS $DOCKER_REGISTRY
+      - run:
+          name: Docker Build
+          command: |
+            docker build -t $DOCKER_IMAGE .
+      - run:
+          name: Docker Tag
+          command: |
+            docker tag $DOCKER_IMAGE $DOCKER_REGISTRY/$DOCKER_IMAGE:latest
+      - run:
+          name: Docker push
+          command: |
+            docker push $DOCKER_REGISTRY/$DOCKER_IMAGE:latest
+      - run:
+          name: Deploy
+          command: |
+            ssh $REMOTE_HOST "./scripts/deploy-rock-paper-scissors.sh"
