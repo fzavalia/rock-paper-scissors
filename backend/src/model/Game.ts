@@ -1,8 +1,9 @@
 import Round from "./Round";
 import Hand from "./Hand";
 import HasPlayers from "./interfaces/HasPlayers";
+import HasLastInteraction from "./interfaces/HasLastInteraction";
 
-export default class Game implements HasPlayers {
+export default class Game implements HasPlayers, HasLastInteraction {
   private readonly rounds: Round[];
 
   constructor(

@@ -1,7 +1,8 @@
 import Game from "./Game";
 import HasPlayers from "./interfaces/HasPlayers";
+import HasLastInteraction from "./interfaces/HasLastInteraction";
 
-export default class Lobby implements HasPlayers {
+export default class Lobby implements HasPlayers, HasLastInteraction {
   private readonly playerIds = new Set<string>();
 
   constructor(readonly id: string, readonly goal: number, public _lastInteraction: Date = new Date()) {}
