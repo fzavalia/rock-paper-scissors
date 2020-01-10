@@ -36,6 +36,12 @@ const Lobby = (props: { id: string }) => {
   return (
     <div style={{ padding: "1rem" }}>
       <Typography variant="body1" gutterBottom>
+        Share this URL with the person you want to play with:
+      </Typography>
+      <Typography variant="body1" gutterBottom>
+        <i>{window.location.href}</i>
+      </Typography>
+      <Typography style={{ marginTop: "2rem" }} variant="body1" gutterBottom>
         {lobby.opponentId ? "All players are ready!" : "Waiting for opponent..."}
       </Typography>
       <Button disabled={!lobby.opponentId} onClick={() => socket.emit("create-game", lobby.id)} variant="contained">
