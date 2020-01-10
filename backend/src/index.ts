@@ -14,22 +14,23 @@ const sockets = new Map<string, Socket>();
 const games = new Map<string, Game>();
 const lobbies = new Map<string, Lobby>();
 
-const scheduleStaleElementsRemoval = (map: Map<string, { lastInteraction: Date }>) => {
+const scheduleStaleElementsRemoval = (map: Map<string, { lastInteraction: Date }>, name: string) => {
   const tenMinutes = 10 * 60 * 1000;
   setInterval(() => {
-    console.log("Deleting stale elements...");
+    console.log(`--- Deleting stale elements (${name})`);
     const now = +new Date();
     Array.from(map)
       .filter(([_, element]) => now - +element.lastInteraction > tenMinutes)
       .forEach(([id, _]) => {
         map.delete(id);
-        console.log(`Deleted element ${id}!`);
+        console.log(id);
       });
+    console.log(`--- Finished deleting stale elements (${name})`);
   }, tenMinutes);
 };
 
-scheduleStaleElementsRemoval(games);
-scheduleStaleElementsRemoval(lobbies);
+scheduleStaleElementsRemoval(games, "game");
+scheduleStaleElementsRemoval(lobbies, "lobby");
 
 wss.on(events.CONNECTION, socket => new Connection(socket, sockets, games, lobbies));
 
