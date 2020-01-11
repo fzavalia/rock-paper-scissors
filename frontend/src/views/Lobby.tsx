@@ -45,7 +45,7 @@ const Lobby = (props: { id: string }) => {
 
   return (
     <>
-      <Typography variant="subtitle2" gutterBottom>
+      <Typography variant="body1" gutterBottom>
         Goal: <b>{lobby.goal}</b> win/s
       </Typography>
       <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={closeMenu}>
@@ -60,23 +60,20 @@ const Lobby = (props: { id: string }) => {
           </a>
         </MenuItem>
       </Menu>
-      <Typography gutterBottom>
+      <Typography variant="body1" gutterBottom>
         {lobby.opponentId ? <>Your opponent has joined! You can start the game now!</> : <i>Waiting for opponent...</i>}
       </Typography>
-      {lobby.opponentId ? (
-        <Button
-          style={{ marginTop: "0.3rem" }}
-          disabled={!lobby.opponentId}
-          onClick={() => socket.emit("create-game", lobby.id)}
-          variant="outlined"
-        >
-          Start Game
-        </Button>
-      ) : (
-        <Button onClick={openMenu} variant="outlined">
-          Invite
-        </Button>
-      )}
+      <div style={{ marginTop: "1rem" }}>
+        {lobby.opponentId ? (
+          <Button disabled={!lobby.opponentId} onClick={() => socket.emit("create-game", lobby.id)} variant="outlined">
+            Start Game
+          </Button>
+        ) : (
+          <Button onClick={openMenu} variant="outlined">
+            Invite
+          </Button>
+        )}
+      </div>
     </>
   );
 };
