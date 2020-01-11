@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { Typography, Button, Card, CardContent } from "@material-ui/core";
 import { socket } from "../App";
+import rockImg from "../img/rock.png";
+import paperImg from "../img/paper.png";
+import scissorsImg from "../img/scissors.png";
 
 const Game = (props: { id: string }) => {
   const history = useHistory();
@@ -46,7 +49,7 @@ const Game = (props: { id: string }) => {
               You have chosen <b>{playedHand}</b>! Waiting for opponent to play...
             </Typography>
           )}
-          <div style={{ marginTop: "1rem" }}>
+          <div style={{ marginTop: "1rem", display: "flex", justifyContent: "space-around" }}>
             <HandTypeButton game={game} type={"rock"} setPlayedHand={setPlayedHand} />
             <HandTypeButton game={game} type={"paper"} setPlayedHand={setPlayedHand} />
             <HandTypeButton game={game} type={"scissors"} setPlayedHand={setPlayedHand} />
@@ -88,17 +91,22 @@ const Game = (props: { id: string }) => {
   );
 };
 
+const typeToImage = (type: string) => (type === "rock" ? rockImg : type === "paper" ? paperImg : scissorsImg);
+
 const HandTypeButton = (props: { game: any; type: string; setPlayedHand: (hand: string) => void }) => (
   <Button
     disabled={!props.game.hasToPlay}
     style={{ marginRight: "1rem" }}
-    variant="outlined"
     onClick={() => {
       props.setPlayedHand(props.type.toUpperCase());
       socket.emit("play-hand", { gameId: props.game.id, hand: props.type });
     }}
   >
-    {props.type.toUpperCase()}
+    <img
+      style={{ height: 50, width: 50, opacity: !props.game.hasToPlay ? "0.5" : undefined }}
+      src={typeToImage(props.type)}
+      alt={props.type}
+    />
   </Button>
 );
 
