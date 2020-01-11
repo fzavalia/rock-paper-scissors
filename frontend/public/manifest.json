@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "RPS",
+  "name": "Rock, Paper & Scissors Online!",
   "icons": [
     {
       "src": "favicon.ico",
