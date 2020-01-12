@@ -4,6 +4,7 @@ import HasLastInteraction from "./interfaces/HasLastInteraction";
 
 export default class Lobby implements HasPlayers, HasLastInteraction {
   private readonly playerIds = new Set<string>();
+  private readonly readyIds = new Set<string>();
 
   constructor(readonly id: string, private _goal: number, private _lastInteraction: Date = new Date()) {}
 
@@ -37,6 +38,17 @@ export default class Lobby implements HasPlayers, HasLastInteraction {
     this._lastInteraction = new Date();
   };
 
+  setReady = (playerId: string, value: boolean) => {
+    if (!this.playerIds.has(playerId)) {
+      throw new Error("Player not in Lobby");
+    }
+    if (value) {
+      this.readyIds.add(playerId);
+    } else {
+      this.readyIds.delete(playerId);
+    }
+  };
+
   toGame = () => {
     if (!this.isFull()) {
       throw new Error("Missing players");
@@ -56,7 +68,7 @@ export default class Lobby implements HasPlayers, HasLastInteraction {
       opponentId,
       isEmpty: this.isEmpty(),
       isFull: this.isFull(),
-      goal: this.goal
+      goal: this._goal
     };
   };
 
