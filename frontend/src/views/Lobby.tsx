@@ -41,8 +41,6 @@ const Lobby = (props: { id: string }) => {
     return null;
   }
 
-  console.log(lobby);
-
   return (
     <>
       <Typography style={{ marginBottom: "1rem" }} variant="body1">

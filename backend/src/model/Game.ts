@@ -72,7 +72,8 @@ export default class Game implements HasPlayers, HasLastInteraction {
       winner: this.isOver() ? this.getWinner() === playerId : undefined,
       playerScore: this.getPlayerScore(playerId),
       opponentScore: this.getPlayerScore(opponentId),
-      hasToPlay: this.getCurrentRound().playerHasToPlay(playerId)
+      hasToPlay: this.getCurrentRound().playerHasToPlay(playerId),
+      opponentHasToPlay: this.getCurrentRound().playerHasToPlay(opponentId)
     };
   };
 
