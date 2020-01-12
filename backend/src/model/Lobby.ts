@@ -5,10 +5,21 @@ import HasLastInteraction from "./interfaces/HasLastInteraction";
 export default class Lobby implements HasPlayers, HasLastInteraction {
   private readonly playerIds = new Set<string>();
 
-  constructor(readonly id: string, readonly goal: number, public _lastInteraction: Date = new Date()) {}
+  constructor(readonly id: string, private _goal: number, private _lastInteraction: Date = new Date()) {}
 
   get lastInteraction() {
     return this._lastInteraction;
+  }
+
+  get goal() {
+    return this._goal;
+  }
+
+  set goal(value: number) {
+    if (value < 1) {
+      throw new Error("Goal must be > 1");
+    }
+    this._goal = value;
   }
 
   getPlayerIds = () => Array.from(this.playerIds);
