@@ -1,12 +1,23 @@
-import Game from "./Game";
 import HasPlayers from "./interfaces/HasPlayers";
 import HasLastInteraction from "./interfaces/HasLastInteraction";
 
-export default class Lobby implements HasPlayers, HasLastInteraction {
-  private readonly playerIds = new Set<string>();
-  private readonly readyIds = new Set<string>();
+class LobbyPlayer {
+  static makeOwner = (id: string) => new LobbyPlayer(id, true);
+  isReady = false;
+  constructor(readonly id: string, public isOwner: boolean = false) {}
+}
 
-  constructor(readonly id: string, private _goal: number, private _lastInteraction: Date = new Date()) {}
+export default class Lobby implements HasPlayers, HasLastInteraction {
+  private readonly players = new Map<string, LobbyPlayer>();
+
+  constructor(
+    readonly id: string,
+    private ownerId: string,
+    private _goal: number,
+    private _lastInteraction: Date = new Date()
+  ) {
+    this.players.set(ownerId, LobbyPlayer.makeOwner(ownerId));
+  }
 
   get lastInteraction() {
     return this._lastInteraction;
@@ -23,64 +34,39 @@ export default class Lobby implements HasPlayers, HasLastInteraction {
     this._goal = value;
   }
 
-  getPlayerIds = () => Array.from(this.playerIds);
+  getPlayerIds = () => Array.from(this.players.keys());
 
-  hasPlayer = (playerId: string) => this.playerIds.has(playerId);
+  getPlayers = () => Array.from(this.players.values());
+
+  hasPlayer = (playerId: string) => this.players.has(playerId);
 
   join = (playerId: string) => {
-    if (this.playerIds.has(playerId)) {
-      return;
+    if (this.players.has(playerId)) {
+      throw new Error("Player is already in Lobby");
     }
     if (this.isFull()) {
       throw new Error("Lobby is full");
     }
-    this.playerIds.add(playerId);
+    this.players.set(playerId, new LobbyPlayer(playerId));
     this._lastInteraction = new Date();
   };
 
   setReady = (playerId: string, value: boolean) => {
-    if (!this.playerIds.has(playerId)) {
+    const player = this.players.get(playerId);
+    if (!player) {
       throw new Error("Player not in Lobby");
     }
-    if (value) {
-      this.readyIds.add(playerId);
-    } else {
-      this.readyIds.delete(playerId);
+    player.isReady = value;
+  };
+
+  remove = (playerId: string) => {
+    if (playerId === this.ownerId) {
+      throw new Error("Cannot remove the Owner");
     }
+    this.players.delete(playerId);
   };
-
-  toGame = () => {
-    if (!this.isFull()) {
-      throw new Error("Missing players");
-    }
-    const playerIds = this.playerIds.values();
-    return new Game(this.id, this.goal, playerIds.next().value, playerIds.next().value);
-  };
-
-  toJSONForPlayer = (playerId: string) => {
-    if (!this.hasPlayer(playerId)) {
-      throw new Error("Player not in Lobby");
-    }
-    const opponentId = this.getPlayerIds().filter(pid => pid !== playerId)[0];
-    return {
-      id: this.id,
-      playerId,
-      opponentId,
-      isEmpty: this.isEmpty(),
-      isFull: this.isFull(),
-      goal: this._goal
-    };
-  };
-
-  toJSON = () => {
-    return {
-      id: this.id
-    };
-  };
-
-  remove = (playerId: string) => this.playerIds.delete(playerId);
-
-  isEmpty = () => this.getPlayerIds().length === 0;
 
   isFull = () => this.getPlayerIds().length === 2;
+
+  playersAreReady = () => this.getPlayers().length === 2;
 }
