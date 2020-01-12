@@ -7,12 +7,19 @@ const CreateLobby = () => {
   const history = useHistory();
 
   const [goal, setGoal] = useState(1);
+  const [nickName, setNickName] = useState(localStorage.getItem("nickname") || `Guest ${socket.id}`);
 
   useEffect(() => {
     const onLobbyCreated = (lobby: any) => history.push(`/lobbies/${lobby.id}`);
     socket.on("created-lobby", onLobbyCreated);
     return () => {
       socket.off("created-lobby", onLobbyCreated);
+    };
+  });
+
+  useEffect(() => {
+    return () => {
+      localStorage.setItem("nickname", nickName);
     };
   });
 
@@ -23,9 +30,16 @@ const CreateLobby = () => {
         don't know how to play, just <a href="http://letmegooglethat.com/?q=how+to+play+rock+paper+scissors">Google</a>{" "}
         it.
       </Typography>
+      <TextField
+        style={{ marginBottom: "1rem" }}
+        label="Your nickname"
+        variant="outlined"
+        value={nickName}
+        onChange={e => setNickName(e.target.value)}
+        fullWidth
+      ></TextField>
       <Typography style={{ marginBottom: "1rem" }} variant="body1" align="justify">
-        Select how many hands a player must win to be victorious <b>(Goal)</b> and press <b>PLAY</b> to
-        start.
+        Select how many hands a player must win to be victorious <b>(Goal)</b> and press <b>PLAY</b> to start.
       </Typography>
       <div style={{ display: "flex", width: "100%" }}>
         <TextField

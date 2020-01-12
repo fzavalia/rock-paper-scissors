@@ -1,7 +1,7 @@
-import React, { useEffect, Component } from "react";
+import React, { useEffect, Component, useState } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import io from "socket.io-client";
-import { SnackbarProvider, withSnackbar } from "notistack";
+import { SnackbarProvider } from "notistack";
 import CreateLobby from "./views/CreateLobby";
 import Lobby from "./views/Lobby";
 import Game from "./views/Game";
@@ -11,6 +11,20 @@ import { Typography } from "@material-ui/core";
 export const socket = io(process.env.REACT_APP_SOCKET_HOST || "");
 
 const App = () => {
+  const [connected, setConected] = useState(false);
+
+  useEffect(() => {
+    const onConnection = () => setConected(true);
+    socket.on("connect", onConnection);
+    return () => {
+      socket.off("connect", onConnection);
+    };
+  });
+
+  if (!connected) {
+    return null;
+  }
+
   return (
     <SnackbarProvider maxSnack={3}>
       <ErrorNotification>
