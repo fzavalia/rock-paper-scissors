@@ -23,7 +23,7 @@ const CreateLobby = () => {
         don't know how to play, just <a href="http://letmegooglethat.com/?q=how+to+play+rock+paper+scissors">Google</a>{" "}
         it.
       </Typography>
-      <Typography style={{ marginBottom: "2rem" }} variant="body1" align="justify">
+      <Typography style={{ marginBottom: "1rem" }} variant="body1" align="justify">
         Select how many hands a player must win to be victorious <b>(Goal)</b> and press <b>PLAY</b> to
         start.
       </Typography>
