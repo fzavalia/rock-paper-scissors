@@ -18,15 +18,28 @@ const CreateLobby = () => {
 
   return (
     <>
-      <Typography variant="body1" gutterBottom>
-        Choose the amount of wins a player must obtain to win the game.
+      <Typography style={{ marginBottom: "1rem" }} variant="body1" align="justify">
+        Welcome to <b>Rock, Paper & Scissors Online!</b>. It's the game that everybody knows about, but online... If you
+        don't know how to play, just <a href="http://letmegooglethat.com/?q=how+to+play+rock+paper+scissors">Google</a>{" "}
+        it.
       </Typography>
-      <div style={{ marginBottom: "1rem" }}>
-        <TextField type="number" value={goal} onChange={e => setGoal(Math.max(0, parseInt(e.target.value)))} />
+      <Typography style={{ marginBottom: "2rem" }} variant="body1" align="justify">
+        Select how many hands a player must win to be victorious <b>(Goal)</b> and press <b>PLAY</b> to
+        start.
+      </Typography>
+      <div style={{ display: "flex", width: "100%" }}>
+        <TextField
+          style={{ flex: 1 }}
+          type="number"
+          label="Goal"
+          value={goal}
+          onChange={e => setGoal(Math.max(0, parseInt(e.target.value)))}
+          variant="outlined"
+        />
+        <Button style={{ flex: 3 }} onClick={() => socket.emit("create-lobby", goal)} variant="outlined">
+          PLAY
+        </Button>
       </div>
-      <Button onClick={() => socket.emit("create-lobby", goal)} variant="outlined">
-        Play
-      </Button>
     </>
   );
 };
