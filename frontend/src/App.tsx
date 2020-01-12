@@ -32,7 +32,7 @@ const App = () => {
               variant="h5"
               gutterBottom
             >
-              <b>Rock, Paper Scissors Online!</b>
+              <b>Rock, Paper & Scissors Online!</b>
             </Typography>
             <div
               style={{
