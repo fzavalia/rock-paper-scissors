@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import { Button, TextField, Typography, Card, CardContent } from "@material-ui/core";
+import { Button, TextField, Typography } from "@material-ui/core";
 import { socket } from "../App";
 
 const CreateLobby = () => {
