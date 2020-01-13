@@ -12,8 +12,14 @@ const Game = (props: { id: string }) => {
   const [game, setGame] = useState<any>(undefined);
   const [playedHand, setPlayedHand] = useState<string | undefined>(undefined);
 
+  const preloadImages = () =>
+    [rockImg, paperImg, scissorsImg].forEach(img => {
+      new Image().src = img;
+    });
+
   useEffect(() => {
     socket.emit("join-game", props.id);
+    preloadImages();
   }, []);
 
   useEffect(() => {
