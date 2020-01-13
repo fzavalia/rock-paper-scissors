@@ -3,7 +3,7 @@ import Lobby from "./Lobby";
 const player1Id = "player1Id";
 const player2Id = "player2Id";
 
-const makeLobby = (props?: { lastInteraction?: Date }) => new Lobby("id", player1Id, 1, props?.lastInteraction);
+const makeLobby = () => new Lobby("id", player1Id);
 
 describe("Lobby", () => {
   describe("join", () => {
@@ -101,9 +101,8 @@ describe("Lobby", () => {
 
   describe("lastInteraction", () => {
     it("returns the value", () => {
-      const lastInteraction = new Date();
-      const lobby = makeLobby({ lastInteraction });
-      expect(lobby.lastInteraction).toBe(lastInteraction);
+      const lobby = makeLobby();
+      expect(lobby.lastInteraction).toBeInstanceOf(Date);
     });
   });
 });

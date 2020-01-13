@@ -9,13 +9,10 @@ class LobbyPlayer {
 
 export default class Lobby implements HasPlayers, HasLastInteraction {
   private readonly players = new Map<string, LobbyPlayer>();
+  private _goal: number = 1;
+  private _lastInteraction: Date = new Date();
 
-  constructor(
-    readonly id: string,
-    private ownerId: string,
-    private _goal: number,
-    private _lastInteraction: Date = new Date()
-  ) {
+  constructor(readonly id: string, private ownerId: string) {
     this.players.set(ownerId, LobbyPlayer.makeOwner(ownerId));
   }
 
